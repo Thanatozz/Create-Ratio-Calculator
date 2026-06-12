@@ -1,0 +1,40 @@
+{
+  "name": "create-ratio-calculator",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "packageManager": "pnpm@10.13.1",
+  "scripts": {
+    "extract:recipes": "tsx scripts/extract-recipes.ts",
+    "prebuild": "tsx scripts/extract-recipes.ts",
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "test": "vitest",
+    "deploy": "gh-pages -d dist"
+  },
+  "dependencies": {
+    "@xyflow/react": "^12.8.4",
+    "elkjs": "^0.10.0",
+    "lucide-react": "^0.468.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "zustand": "^5.0.2"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^5.0.0",
+    "autoprefixer": "^10.4.20",
+    "gh-pages": "^6.2.0",
+    "jsdom": "^26.0.0",
+    "jszip": "^3.10.1",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.17",
+    "typescript": "^5.7.2",
+    "tsx": "^4.19.2",
+    "vite": "^7.0.0",
+    "vitest": "^3.0.0"
+  }
+}

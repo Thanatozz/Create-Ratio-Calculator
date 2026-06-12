@@ -1,0 +1,47 @@
+import { Handle, Position, type Node, type NodeProps } from "@xyflow/react";
+import type { ProductionGraphNodeData } from "../../calculator-core/types";
+import { CreateIcon } from "../icons/CreateIcon";
+import { useTranslation } from "../../i18n";
+
+type MachineFlowNode = Node<ProductionGraphNodeData, "machine">;
+
+function badgeKey(badge: unknown): string | undefined {
+  if (typeof badge !== "string") {
+    return undefined;
+  }
+  if (badge === "fixedMachine" || badge === "inputProvider") {
+    return `badge.${badge}`;
+  }
+  return `status.${badge}`;
+}
+
+export function MachineNode({ data }: NodeProps<MachineFlowNode>) {
+  const rate = data.metrics?.Available ?? data.metrics?.Required;
+  const t = useTranslation();
+  const machineId =
+    typeof data.raw === "object" && data.raw !== null && "machineId" in data.raw
+      ? String(data.raw.machineId)
+      : undefined;
+  const translatedBadge = badgeKey(data.badge);
+
+  return (
+    <div className="min-w-56 rounded-md border border-factory-copper/50 bg-factory-panel px-3 py-2.5 shadow-panel">
+      <Handle type="target" position={Position.Left} className="!bg-factory-copper" />
+      <div className="flex items-center gap-2 text-sm font-semibold text-stone-100">
+        <CreateIcon id={machineId} kind="machine" />
+        {data.label}
+      </div>
+      <div className="mt-1 text-xs text-stone-500">{data.subtitle}</div>
+      {rate ? <div className="mt-2 text-sm font-semibold text-factory-brass">{rate}</div> : null}
+      {data.metrics?.SU ? (
+        <div className="mt-1 text-xs text-factory-su">{data.metrics.SU} SU</div>
+      ) : null}
+      {data.badge ? (
+        <div className="mt-2 text-[10px] uppercase tracking-wide text-factory-warning">
+          {translatedBadge ? t(translatedBadge) : data.badge}
+        </div>
+      ) : null}
+      <Handle type="source" position={Position.Right} className="!bg-factory-copper" />
+    </div>
+  );
+}

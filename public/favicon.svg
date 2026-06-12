@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-label="Create Ratio Calculator">
+  <defs>
+    <linearGradient id="blueprintBase" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#2f8fd3"/>
+      <stop offset="45%" stop-color="#1769ad"/>
+      <stop offset="100%" stop-color="#0b3f7d"/>
+    </linearGradient>
+
+    <radialGradient id="centerGlow" cx="50%" cy="42%" r="70%">
+      <stop offset="0%" stop-color="#64b7ee" stop-opacity="0.38"/>
+      <stop offset="55%" stop-color="#1d78bc" stop-opacity="0.10"/>
+      <stop offset="100%" stop-color="#052d62" stop-opacity="0.28"/>
+    </radialGradient>
+
+    <pattern id="smallGrid" width="32" height="32" patternUnits="userSpaceOnUse">
+      <path d="M 32 0 H 0 V 32" fill="none" stroke="#8ed0ff" stroke-width="1.1" stroke-opacity="0.16"/>
+    </pattern>
+
+    <pattern id="largeGrid" width="128" height="128" patternUnits="userSpaceOnUse">
+      <path d="M 128 0 H 0 V 128" fill="none" stroke="#bfe7ff" stroke-width="2.2" stroke-opacity="0.18"/>
+    </pattern>
+
+    <!-- <pattern id="diagonalGuides" width="128" height="128" patternUnits="userSpaceOnUse">
+      <path d="M -32 128 L 128 -32 M 0 160 L 160 0" fill="none" stroke="#b9e6ff" stroke-width="1" stroke-opacity="0.06"/>
+    </pattern> -->
+
+    <filter id="softBlueprintTexture" x="-10%" y="-10%" width="120%" height="120%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="7" result="noise"/>
+      <feColorMatrix in="noise" type="matrix"
+        values="0 0 0 0 0.35
+                0 0 0 0 0.70
+                0 0 0 0 1.00
+                0 0 0 0.055 0" result="blueNoise"/>
+      <feBlend in="SourceGraphic" in2="blueNoise" mode="screen"/>
+    </filter>
+
+    <clipPath id="circleClip">
+      <circle cx="256" cy="256" r="248"/>
+    </clipPath>
+  </defs>
+
+  <g clip-path="url(#circleClip)" filter="url(#softBlueprintTexture)">
+    <rect width="512" height="512" fill="url(#blueprintBase)"/>
+    <rect width="512" height="512" fill="url(#centerGlow)"/>
+    <rect width="512" height="512" fill="url(#smallGrid)"/>
+    <rect width="512" height="512" fill="url(#largeGrid)"/>
+    <rect width="512" height="512" fill="url(#diagonalGuides)"/>
+
+    <path d="M0 0 H512 V92 H0 Z" fill="#ffffff" opacity="0.035"/>
+    <path d="M0 420 H512 V512 H0 Z" fill="#001a3f" opacity="0.12"/>
+    <path d="M0 0 V512 H76 V0 Z" fill="#ffffff" opacity="0.025"/>
+    <path d="M436 0 V512 H512 V0 Z" fill="#001a3f" opacity="0.08"/>
+
+    <g stroke="#cdefff" stroke-width="1.2" stroke-opacity="0.12" fill="none">
+      <circle cx="256" cy="256" r="176" opacity="0.20"/>
+      <circle cx="256" cy="256" r="112" opacity="0.14"/>
+      <path d="M256 48 V464" opacity="0.18"/>
+      <path d="M48 256 H464" opacity="0.18"/>
+      <path d="M108 108 H404 V404 H108 Z" opacity="0.10"/>
+    </g>
+  </g>
+
+  <circle cx="256" cy="256" r="248"
+          fill="none" stroke="#f7fbff" stroke-width="12"/>
+  <g transform="translate(32 32) scale(0.875)">
+    <circle cx="256" cy="256" r="160" fill="none" stroke="#f7fbff" stroke-width="64"/>
+    <path d="M256 48v96M256 368v96M48 256h96M368 256h96M112 112l64 64M336 336l64 64M400 112l-64 64M176 336l-64 64" stroke="#f7fbff" stroke-width="56" stroke-linecap="square"/>
+    <circle cx="256" cy="256" r="160" fill="#c08b22" stroke="#a37415" stroke-width="48"/>
+    <path d="M256 48v96M256 368v96M48 256h96M368 256h96M112 112l64 64M336 336l64 64M400 112l-64 64M176 336l-64 64" stroke="#c08b22" stroke-width="40" stroke-linecap="square"/>
+    <rect x="214" y="214" width="84" height="84" fill="#727272" stroke="#f7fbff" stroke-width="8" transform="rotate(45 256 256)"/>
+  </g>
+
+</svg>
