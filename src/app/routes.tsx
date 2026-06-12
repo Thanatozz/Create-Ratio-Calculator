@@ -1,6 +1,6 @@
 import {
   BarChart3,
-  Factory,
+  Calculator,
   Network,
   Settings,
   Zap
@@ -22,7 +22,7 @@ export interface TabDefinition {
 }
 
 export const tabs: TabDefinition[] = [
-  { id: "factory", labelKey: "navigation.factory", Icon: Factory },
+  { id: "factory", labelKey: "navigation.factory", Icon: Calculator },
   { id: "visualize", labelKey: "navigation.visualize", Icon: Network },
   { id: "resources", labelKey: "navigation.resources", Icon: BarChart3 },
   { id: "su_planner", labelKey: "navigation.suPlanner", Icon: Zap },

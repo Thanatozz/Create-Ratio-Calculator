@@ -108,8 +108,8 @@ export function ResourcesTab() {
   }
 
   return (
-    <div className="industrial-scrollbar min-h-0 overflow-auto p-3">
-      <section className="rounded-md border border-factory-border bg-factory-panel">
+    <div className="create-page industrial-scrollbar h-full min-h-0 overflow-auto p-3">
+      <section className="create-panel mx-auto w-full max-w-6xl">
         <div className="flex items-center gap-2 border-b border-factory-border px-3 py-2">
           <Package size={15} className="text-factory-brass" />
           <h2 className="text-xs font-semibold uppercase tracking-wide text-factory-brass">
@@ -117,8 +117,8 @@ export function ResourcesTab() {
           </h2>
         </div>
         <div className="overflow-auto">
-          <table className="w-full min-w-[760px] text-left text-sm">
-            <thead className="bg-factory-panel2 text-[11px] uppercase tracking-wide text-stone-500">
+          <table className="create-technical-table w-full min-w-[760px] text-left text-sm">
+            <thead className="text-[11px] uppercase tracking-wide text-stone-500">
               <tr>
                 <th className="px-3 py-2">{t("resources.type")}</th>
                 <th className="px-3 py-2">{t("resources.item")}</th>

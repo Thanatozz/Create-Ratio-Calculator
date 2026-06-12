@@ -18,6 +18,7 @@ import type {
   TransportMode
 } from "../calculator-core/types";
 import { recipes } from "../data/create-1.21.1/recipes";
+import { getVisibleSuGenerators } from "../data/create-1.21.1/suGenerators";
 import { getRecipeDefinitionsFromEnabledSources } from "../data/recipeSources";
 import { transportModes } from "../data/create-1.21.1/transport";
 import { useSettingsStore } from "./settingsStore";
@@ -82,6 +83,9 @@ function calculate(snapshot: CalculationSnapshot): SolverOutput {
   const activeRecipes = getRecipeDefinitionsFromEnabledSources(
     settings.enabledRecipeSourceIds
   );
+  const activeSuGenerators = getVisibleSuGenerators(
+    settings.showCreativeGenerator
+  );
 
   if (snapshot.calculationMode === "fixed_machines") {
     const fixedRecipeId = validRecipeForMachine(
@@ -102,6 +106,7 @@ function calculate(snapshot: CalculationSnapshot): SolverOutput {
       realisticEfficiency: settings.defaultEfficiency,
       suMargin: settings.suMargin,
       recipes: activeRecipes,
+      suGenerators: activeSuGenerators,
       machineStressOverrides: settings.machineStressOverrides,
       generatorCapacityOverrides: settings.generatorCapacityOverrides
     });
@@ -122,6 +127,7 @@ function calculate(snapshot: CalculationSnapshot): SolverOutput {
     realisticEfficiency: settings.defaultEfficiency,
     suMargin: settings.suMargin,
     recipes: activeRecipes,
+    suGenerators: activeSuGenerators,
     machineStressOverrides: settings.machineStressOverrides,
     generatorCapacityOverrides: settings.generatorCapacityOverrides
   });

@@ -8,9 +8,9 @@ export function TopNavigation() {
   const t = useTranslation();
 
   return (
-    <header className="flex min-h-16 items-center justify-between border-b border-factory-border bg-factory-bg/95 px-4 backdrop-blur">
+    <header className="create-topnav flex min-h-16 items-center justify-between px-4">
       <div className="min-w-0">
-        <div className="text-lg font-semibold text-stone-100">Create Ratio Calculator</div>
+        <div className="create-brand-title text-lg font-semibold text-stone-100">Create Ratio Calculator</div>
         <div className="text-xs text-stone-500">
           {t("app.subtitle")}
         </div>
@@ -22,9 +22,9 @@ export function TopNavigation() {
           return (
             <button
               key={id}
-              className={`flex h-10 items-center gap-2 rounded-md px-3 text-sm transition ${
+              className={`create-nav-button flex h-10 items-center gap-2 px-3 text-sm transition ${
                 isActive
-                  ? "bg-factory-brass text-black"
+                  ? "create-nav-button--active"
                   : "text-stone-300 hover:bg-factory-panel2 hover:text-stone-100"
               }`}
               type="button"

@@ -121,6 +121,7 @@ export interface TransportDefinition {
 export interface SuGeneratorDefinition {
   id: string;
   name: string;
+  level?: string;
   suCapacity: number;
   category: "early_game" | "mid_game" | "late_game" | "creative";
   configurable?: boolean;
@@ -334,6 +335,7 @@ export interface SolverInput extends TargetRequest {
   realisticEfficiency: number;
   suMargin: number;
   recipes?: RecipeDefinition[];
+  suGenerators?: SuGeneratorDefinition[];
   machineStressOverrides?: Record<string, number>;
   generatorCapacityOverrides?: Record<string, number>;
   fixedMachine?: {
@@ -355,6 +357,7 @@ export interface FixedMachinesRequest {
   realisticEfficiency?: number;
   suMargin?: number;
   recipes?: RecipeDefinition[];
+  suGenerators?: SuGeneratorDefinition[];
   machineStressOverrides?: Record<string, number>;
   generatorCapacityOverrides?: Record<string, number>;
 }

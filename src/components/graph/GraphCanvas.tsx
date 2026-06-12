@@ -180,7 +180,7 @@ export function GraphCanvas({ compact = false }: { compact?: boolean }) {
   }, [flowInstance, fitViewVersion, laidOutGraph]);
 
   return (
-    <div className={`overflow-hidden rounded-md border border-factory-border bg-[#11100e] ${compact ? "h-[420px]" : "h-full min-h-[560px]"}`}>
+    <div className={`create-graph-canvas overflow-hidden ${compact ? "h-[420px]" : "h-full min-h-[560px]"}`}>
       <ReactFlow
         nodes={nodes}
         edges={edges}

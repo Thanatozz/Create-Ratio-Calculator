@@ -1,7 +1,7 @@
 import type { TranslationDictionary } from "./types";
 
 export const en: TranslationDictionary = {
-  "navigation.factory": "Factory",
+  "navigation.factory": "Calculator",
   "navigation.visualize": "Visualize",
   "navigation.resources": "Resources",
   "navigation.suPlanner": "SU Planner",
@@ -35,7 +35,7 @@ export const en: TranslationDictionary = {
   "mode.itemsPerSecond": "items/s",
   "mode.stacksPerMinute": "stacks/min",
 
-  "factory.title": "Factory Planner",
+  "factory.title": "Calculator",
   "factory.description": "Choose the target and machine assumptions for the solver.",
   "factory.output": "Output",
   "factory.machines": "Machines",
@@ -137,12 +137,16 @@ export const en: TranslationDictionary = {
   "su.thresholdRecommendation": "Threshold Recommendation",
   "su.generatorOptions": "Generator Options",
   "su.generator": "Generator",
+  "su.level": "Level",
   "su.suEach": "SU each",
   "su.category": "Category",
   "su.earlyGame": "Early game",
   "su.midGame": "Mid game",
   "su.lateGame": "Late game",
   "su.creative": "Creative",
+  "su.creativeGenerator": "Creative Generator",
+  "su.creativeTesting": "Creative / Testing",
+  "su.multipleSuperheatedBoilers": "Multiple Max Superheated Steam Engines",
   "su.moveUpNote": "Move up when counts get awkward or expansion is planned.",
 
   "settings.title": "Settings",
@@ -152,6 +156,7 @@ export const en: TranslationDictionary = {
   "settings.appearanceLanguage": "Appearance & Language",
   "settings.recipeSources": "Recipe Sources",
   "settings.machineConstants": "Machine Constants",
+  "settings.transportConstants": "Transport Constants",
   "settings.suGeneratorSettings": "SU Generator Settings",
   "settings.advanced": "Advanced",
   "settings.minecraftVersion": "Minecraft version",
@@ -170,6 +175,7 @@ export const en: TranslationDictionary = {
   "settings.disableAllAddons": "Disable all addons",
   "settings.resetRecipeSources": "Reset recipe sources",
   "settings.showAdvanced": "Show advanced calculations",
+  "settings.showCreativeGenerator": "Show Creative Generator",
   "settings.developerMode": "Developer Mode",
   "settings.showUnsupported": "Show unsupported recipes in Debug",
   "settings.openDeveloper": "Open developer diagnostics",
@@ -198,3 +204,4 @@ export const en: TranslationDictionary = {
   "badge.byproduct": "Byproduct",
   "badge.input": "Input"
 };
+

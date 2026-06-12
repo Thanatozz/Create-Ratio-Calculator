@@ -11,6 +11,7 @@ import {
   SUPPORTED_MINECRAFT_VERSION
 } from "../calculator-core/constants";
 import type { CalculatorMode, RpmPreset, TransportMode } from "../calculator-core/types";
+import { CREATIVE_GENERATOR_ID } from "../data/create-1.21.1/suGenerators";
 import {
   allRecipeSources,
   CREATE_BASE_SOURCE_ID,
@@ -38,6 +39,7 @@ export interface SettingsState {
   defaultEfficiency: number;
   suMargin: number;
   showAdvancedCalculations: boolean;
+  showCreativeGenerator: boolean;
   developerMode: boolean;
   showUnsupportedRecipesInDebug: boolean;
   recipeSourcePreference: RecipeSourcePreference;
@@ -57,6 +59,7 @@ export interface SettingsState {
   setDefaultEfficiency: (value: number) => void;
   setSuMargin: (value: number) => void;
   setShowAdvancedCalculations: (value: boolean) => void;
+  setShowCreativeGenerator: (value: boolean) => void;
   setDeveloperMode: (value: boolean) => void;
   setShowUnsupportedRecipesInDebug: (value: boolean) => void;
   setRecipeSourcePreference: (value: RecipeSourcePreference) => void;
@@ -83,6 +86,7 @@ const initialSettings = {
   defaultEfficiency: DEFAULT_REALISTIC_EFFICIENCY,
   suMargin: DEFAULT_SU_MARGIN,
   showAdvancedCalculations: false,
+  showCreativeGenerator: false,
   developerMode: false,
   showUnsupportedRecipesInDebug: false,
   recipeSourcePreference: "enabled_sources" as const,
@@ -104,13 +108,28 @@ export const useSettingsStore = create<SettingsState>()(
       setDefaultTransportMode: (defaultTransportMode) =>
         set({ defaultTransportMode }),
       setPreferredSuGeneratorId: (preferredSuGeneratorId) =>
-        set({ preferredSuGeneratorId }),
+        set((state) => ({
+          preferredSuGeneratorId:
+            preferredSuGeneratorId === CREATIVE_GENERATOR_ID &&
+            !state.showCreativeGenerator
+              ? initialSettings.preferredSuGeneratorId
+              : preferredSuGeneratorId
+        })),
       setTheme: (theme) => set({ theme }),
       setLanguage: (language) => set({ language }),
       setDefaultEfficiency: (defaultEfficiency) => set({ defaultEfficiency }),
       setSuMargin: (suMargin) => set({ suMargin }),
       setShowAdvancedCalculations: (showAdvancedCalculations) =>
         set({ showAdvancedCalculations }),
+      setShowCreativeGenerator: (showCreativeGenerator) =>
+        set((state) => ({
+          showCreativeGenerator,
+          preferredSuGeneratorId:
+            !showCreativeGenerator &&
+            state.preferredSuGeneratorId === CREATIVE_GENERATOR_ID
+              ? initialSettings.preferredSuGeneratorId
+              : state.preferredSuGeneratorId
+        })),
       setDeveloperMode: (developerMode) => set({ developerMode }),
       setShowUnsupportedRecipesInDebug: (showUnsupportedRecipesInDebug) =>
         set({ showUnsupportedRecipesInDebug }),
@@ -174,6 +193,11 @@ export const useSettingsStore = create<SettingsState>()(
 
         return {
           ...merged,
+          preferredSuGeneratorId:
+            !merged.showCreativeGenerator &&
+            merged.preferredSuGeneratorId === CREATIVE_GENERATOR_ID
+              ? initialSettings.preferredSuGeneratorId
+              : merged.preferredSuGeneratorId,
           enabledRecipeSourceIds: normalizeEnabledRecipeSourceIds(
             merged.enabledRecipeSourceIds ?? []
           )
@@ -192,6 +216,7 @@ export const useSettingsStore = create<SettingsState>()(
         defaultEfficiency: state.defaultEfficiency,
         suMargin: state.suMargin,
         showAdvancedCalculations: state.showAdvancedCalculations,
+        showCreativeGenerator: state.showCreativeGenerator,
         developerMode: state.developerMode,
         showUnsupportedRecipesInDebug: state.showUnsupportedRecipesInDebug,
         recipeSourcePreference: state.recipeSourcePreference,

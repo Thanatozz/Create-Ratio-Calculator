@@ -20,7 +20,7 @@ import { formatPercent, formatRate, formatSu, rateUnitLabel, utilizationClass } 
 import { items } from "../../data/create-1.21.1/items";
 import { machines } from "../../data/create-1.21.1/machines";
 import { getRecipeDefinitionsFromEnabledSources } from "../../data/recipeSources";
-import { suGenerators } from "../../data/create-1.21.1/suGenerators";
+import { getVisibleSuGenerators } from "../../data/create-1.21.1/suGenerators";
 import { transportModes } from "../../data/create-1.21.1/transport";
 import { useTranslation } from "../../i18n";
 import { useCalculatorStore } from "../../stores/calculatorStore";
@@ -93,6 +93,9 @@ export function VisualizeTab() {
   const preferredSuGeneratorId = useSettingsStore(
     (settings) => settings.preferredSuGeneratorId
   );
+  const showCreativeGenerator = useSettingsStore(
+    (settings) => settings.showCreativeGenerator
+  );
   const activeRecipes = getRecipeDefinitionsFromEnabledSources(enabledRecipeSourceIds);
   const recipeOptions = activeRecipes.filter(
     (recipe) => recipe.machineId === calculator.fixedMachineId
@@ -117,11 +120,12 @@ export function VisualizeTab() {
   const [leftOpen, setLeftOpen] = useState(true);
   const [rightOpen, setRightOpen] = useState(true);
   const rightExpanded = Boolean(selectedNode && rightOpen);
+  const visibleSuGenerators = getVisibleSuGenerators(showCreativeGenerator);
+  const preferredGenerator =
+    visibleSuGenerators.find((generator) => generator.id === preferredSuGeneratorId) ??
+    visibleSuGenerators[0];
   const preferredSuPlan = result.su.generatorPlans.find(
-    (plan) => plan.generatorId === preferredSuGeneratorId
-  );
-  const preferredGenerator = suGenerators.find(
-    (generator) => generator.id === preferredSuGeneratorId
+    (plan) => plan.generatorId === preferredGenerator?.id
   );
   const recommendedSuPlan = result.su.recommendedSetup ?? result.su.minimumSetup;
   const machineSummary = result.machines.map((machine) => ({
@@ -137,12 +141,12 @@ export function VisualizeTab() {
 
   return (
     <div
-      className="grid h-full min-h-0 gap-2 p-2"
+      className="create-page grid h-full min-h-0 gap-2 p-2"
       style={{
         gridTemplateColumns: `${leftOpen ? "260px" : "42px"} minmax(0, 1fr) ${rightExpanded ? "320px" : "42px"}`
       }}
     >
-      <aside className="min-h-0 overflow-hidden rounded-md border border-factory-border bg-factory-panel">
+      <aside className="create-panel min-h-0 overflow-hidden">
         {leftOpen ? (
           <div className="industrial-scrollbar flex h-full min-h-0 flex-col gap-3 overflow-auto p-3">
             <div className="flex items-center justify-between gap-2">
@@ -160,7 +164,7 @@ export function VisualizeTab() {
               </button>
             </div>
             <SelectField<CalculationMode>
-              label="Calculation mode"
+              label={t("factory.calculationMode")}
               value={calculator.calculationMode}
               options={calculationModeOptions.map((mode) => ({
                 value: mode,
@@ -276,7 +280,7 @@ export function VisualizeTab() {
       </aside>
 
       <section className="flex min-h-0 flex-col gap-2">
-        <div className="flex flex-wrap items-center gap-2 rounded-md border border-factory-border bg-factory-panel px-2 py-2">
+        <div className="create-panel flex flex-wrap items-center gap-2 px-2 py-2">
           <ToolbarButton title={t("visualize.fitView")} onClick={requestFitView}>
             <Maximize size={14} />
             {t("visualize.fitView")}
@@ -312,7 +316,7 @@ export function VisualizeTab() {
         </div>
         <div className="relative min-h-0 flex-1">
           <div className="pointer-events-none absolute right-3 top-3 z-10 grid w-[260px] gap-2">
-            <details className="pointer-events-auto rounded-md border border-factory-border bg-factory-panel/95 text-sm shadow-panel" open>
+            <details className="create-panel pointer-events-auto text-sm shadow-panel" open>
               <summary className="cursor-pointer px-3 py-2 text-xs font-semibold uppercase tracking-wide text-factory-brass">
                 {t("visualize.suSummary")}
               </summary>
@@ -341,7 +345,7 @@ export function VisualizeTab() {
                 </div>
               </div>
             </details>
-            <details className="pointer-events-auto rounded-md border border-factory-border bg-factory-panel/95 text-sm shadow-panel">
+            <details className="create-panel pointer-events-auto text-sm shadow-panel">
               <summary className="cursor-pointer px-3 py-2 text-xs font-semibold uppercase tracking-wide text-factory-brass">
                 {t("visualize.machineSummary")}
               </summary>
@@ -356,7 +360,7 @@ export function VisualizeTab() {
         </div>
       </section>
 
-      <aside className="min-h-0 overflow-hidden rounded-md border border-factory-border bg-factory-panel">
+      <aside className="create-panel min-h-0 overflow-hidden">
         {rightExpanded ? (
           <div className="industrial-scrollbar h-full overflow-auto p-3">
             <div className="mb-3 flex items-center justify-between gap-2">

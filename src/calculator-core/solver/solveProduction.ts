@@ -1,7 +1,7 @@
 import { itemById } from "../../data/create-1.21.1/items";
 import { machines } from "../../data/create-1.21.1/machines";
 import { recipes as baseRecipes } from "../../data/create-1.21.1/recipes";
-import { suGenerators } from "../../data/create-1.21.1/suGenerators";
+import { normalSuGenerators } from "../../data/create-1.21.1/suGenerators";
 import { transportModes } from "../../data/create-1.21.1/transport";
 import { buildGraph } from "../graph/buildGraph";
 import { buildSuSummary } from "../su/planner";
@@ -35,7 +35,7 @@ export function solveProduction(input: SolverInput): SolverOutput {
     input.machineStressOverrides
   );
   const configuredGenerators = applyGeneratorCapacityOverrides(
-    suGenerators,
+    input.suGenerators ?? normalSuGenerators,
     input.generatorCapacityOverrides
   );
   const transportModeData = transportModes[input.transportMode];

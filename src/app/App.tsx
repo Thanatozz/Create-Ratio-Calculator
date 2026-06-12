@@ -31,6 +31,15 @@ function ActiveTab() {
   }
 }
 
+const pageThemes: Record<AppTab, "andesite" | "brass" | "copper" | "train"> = {
+  factory: "andesite",
+  visualize: "brass",
+  resources: "brass",
+  su_planner: "copper",
+  settings: "train",
+  debug: "andesite"
+};
+
 export function shouldShowBottomStats(activeTab: AppTab) {
   void activeTab;
   return false;
@@ -40,6 +49,8 @@ export function App() {
   const calculate = useCalculatorStore((state) => state.calculate);
   const activeTab = useUiStore((state) => state.activeTab);
   const theme = useSettingsStore((state) => state.theme);
+  const showFactorySidebar = activeTab === "factory";
+  const pageTheme = pageThemes[activeTab];
 
   useEffect(() => {
     calculate();
@@ -69,22 +80,25 @@ export function App() {
   }, [theme]);
 
   const mainContent = (
-    <section className="min-h-0 bg-factory-bg">
+    <section className="h-full min-h-0">
       <ActiveTab />
     </section>
   );
 
   return (
-    <div className="flex h-screen min-h-screen flex-col overflow-hidden text-stone-100">
+    <div
+      className="create-app-shell flex h-screen min-h-screen flex-col overflow-hidden text-stone-100"
+      data-page-theme={pageTheme}
+    >
       <TopNavigation />
       <main
         className={
-          activeTab === "factory"
+          showFactorySidebar
             ? "grid min-h-0 flex-1 grid-cols-1 xl:grid-cols-[260px_minmax(0,1fr)]"
             : "grid min-h-0 flex-1 grid-cols-1"
         }
       >
-        {activeTab === "factory" ? <ControlSidebar /> : null}
+        {showFactorySidebar ? <ControlSidebar /> : null}
         {mainContent}
       </main>
     </div>

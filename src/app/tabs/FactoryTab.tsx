@@ -311,7 +311,7 @@ function CompactStat({
   tone?: string;
 }) {
   return (
-    <div className="min-w-0 rounded-md border border-factory-border bg-factory-panel px-3 py-2">
+    <div className="create-result-bar min-w-0 px-3 py-2">
       <div className="truncate text-[11px] uppercase tracking-wide text-stone-500">
         {label}
       </div>
@@ -351,8 +351,8 @@ export function FactoryTab() {
   }
 
   return (
-    <div className="industrial-scrollbar min-h-0 overflow-auto p-3">
-      <section className="grid gap-2 md:grid-cols-5">
+    <div className="create-page industrial-scrollbar h-full min-h-0 overflow-auto p-3">
+      <section className="mx-auto grid w-full max-w-6xl gap-2 md:grid-cols-5">
         <CompactStat
           label={t("factory.output")}
           value={`${targetName} - ${formatRate(result.target.targetRatePerMinute)}`}
@@ -383,19 +383,20 @@ export function FactoryTab() {
         />
       </section>
 
-      <section className="mt-3 rounded-md border border-factory-border bg-factory-panel">
+      <section className="create-panel mx-auto mt-3 w-full max-w-6xl">
         <div className="flex items-center gap-2 border-b border-factory-border px-3 py-2 text-xs uppercase tracking-wide text-stone-500">
           <ListTree size={14} className="text-factory-brass" />
           {t("factory.productionPlan")}
         </div>
         <div className="overflow-auto">
-          <table className="w-full min-w-[860px] border-collapse text-left text-sm">
-            <thead className="bg-factory-panel2 text-[11px] uppercase tracking-wide text-stone-500">
+          <table className="create-technical-table w-full min-w-[960px] border-collapse text-left text-sm">
+            <thead className="text-[11px] uppercase tracking-wide text-stone-500">
               <tr>
                 <th className="w-9 px-2 py-2"></th>
                 <th className="px-2 py-2">{t("factory.role")}</th>
                 <th className="px-2 py-2">{t("factory.itemRecipe")}</th>
                 <th className="px-2 py-2 text-right">{t("factory.rate")}</th>
+                <th className="px-2 py-2">{t("factory.transport")}</th>
                 <th className="px-2 py-2">{t("factory.machine")}</th>
                 <th className="px-2 py-2 text-right">{t("factory.count")}</th>
                 <th className="px-2 py-2 text-right">{t("factory.rpm")}</th>
@@ -451,6 +452,7 @@ export function FactoryTab() {
                             ? "-"
                             : formatNumber(row.ratePerMinute))}
                       </td>
+                      <td className={`${rowPadding} text-stone-300`}>{row.transport}</td>
                       <td className={`${rowPadding} text-stone-300`}>{row.machine}</td>
                       <td className={`${rowPadding} text-right text-stone-200`}>
                         {row.machineCount}
@@ -479,7 +481,7 @@ export function FactoryTab() {
                     {expanded ? (
                       <tr key={`${row.id}:details`} className="border-t border-factory-border/60 bg-[#141310]">
                         <td className="px-2 py-2" />
-                        <td className="px-2 py-2 text-sm text-stone-300" colSpan={8}>
+                        <td className="px-2 py-2 text-sm text-stone-300" colSpan={9}>
                           <div className="grid gap-2 md:grid-cols-2 xl:grid-cols-3">
                             {row.details.map((detail) => (
                               <div

@@ -25,7 +25,7 @@ export function MachineNode({ data }: NodeProps<MachineFlowNode>) {
   const translatedBadge = badgeKey(data.badge);
 
   return (
-    <div className="min-w-56 rounded-md border border-factory-copper/50 bg-factory-panel px-3 py-2.5 shadow-panel">
+    <div className="create-graph-node create-graph-node--machine min-w-56 px-3 py-2.5 shadow-panel">
       <Handle type="target" position={Position.Left} className="!bg-factory-copper" />
       <div className="flex items-center gap-2 text-sm font-semibold text-stone-100">
         <CreateIcon id={machineId} kind="machine" />

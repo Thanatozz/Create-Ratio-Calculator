@@ -78,6 +78,7 @@ export function solveFixedMachines(
       request.realisticEfficiency ?? DEFAULT_REALISTIC_EFFICIENCY,
     suMargin: request.suMargin ?? DEFAULT_SU_MARGIN,
     recipes: activeRecipes,
+    suGenerators: request.suGenerators,
     machineStressOverrides: request.machineStressOverrides,
     generatorCapacityOverrides: request.generatorCapacityOverrides,
     fixedMachine: {

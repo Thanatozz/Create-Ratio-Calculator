@@ -22,7 +22,7 @@ export function SelectField<T extends string | number>({
         {label}
       </span>
       <select
-        className="h-10 rounded-md border border-factory-border bg-factory-panel2 px-3 text-sm text-stone-100 outline-none transition focus:border-factory-brass"
+        className="create-control h-10 px-3 text-sm text-stone-100 outline-none transition focus:border-factory-brass"
         value={value}
         onChange={(event) => onChange(event.target.value as T)}
       >

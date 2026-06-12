@@ -63,7 +63,7 @@ export function ControlSidebar() {
     });
 
   return (
-    <aside className="industrial-scrollbar flex min-h-0 flex-col gap-4 overflow-auto border-r border-factory-border bg-factory-panel/90 p-4">
+    <aside className="create-left-panel industrial-scrollbar flex min-h-0 flex-col gap-4 overflow-auto p-4">
       <div>
         <h2 className="text-sm font-semibold uppercase tracking-wide text-factory-brass">
           {t("factory.title")}
@@ -145,7 +145,7 @@ export function ControlSidebar() {
             />
             <details className="relative">
               <summary
-                className="flex h-10 w-10 cursor-pointer list-none items-center justify-center rounded-md border border-factory-border bg-factory-panel2 text-[0px] text-stone-200 after:text-lg after:content-['...'] hover:border-factory-brass"
+                className="create-kebab-menu flex h-10 w-10 cursor-pointer list-none items-center justify-center rounded-md border border-factory-border bg-factory-panel2 text-[0px] text-stone-200 hover:border-factory-brass"
                 title={t("recipeMenu.label")}
               >
                 ⋮
@@ -180,7 +180,7 @@ export function ControlSidebar() {
 
       <div className="grid grid-cols-1 gap-2">
         <button
-          className="flex h-10 items-center justify-center gap-2 rounded-md bg-factory-brass px-3 text-sm font-semibold text-black"
+          className="create-primary-button flex h-10 items-center justify-center gap-2 px-3 text-sm font-semibold"
           type="button"
           onClick={state.calculate}
         >

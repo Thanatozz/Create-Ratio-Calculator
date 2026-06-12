@@ -17,7 +17,7 @@ export function ItemNode({ data }: NodeProps<ItemFlowNode>) {
       : undefined;
 
   return (
-    <div className="min-w-48 rounded-md border border-factory-brass/40 bg-factory-panel px-3 py-2.5 shadow-panel">
+    <div className="create-graph-node create-graph-node--item min-w-48 px-3 py-2.5 shadow-panel">
       <Handle type="target" position={Position.Left} className="!bg-factory-brass" />
       <div className="flex items-center gap-2 text-sm font-semibold text-stone-100">
         <CreateIcon id={itemId} />

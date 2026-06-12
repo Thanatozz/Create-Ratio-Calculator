@@ -1,11 +1,18 @@
 import { BatteryCharging, Gauge, Zap } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { calculateGeneratorCount } from "../../calculator-core/su/generators";
 import type { GeneratorPlan } from "../../calculator-core/types";
 import { NumberField } from "../../components/controls/NumberField";
 import { SelectField } from "../../components/controls/SelectField";
 import { formatNumber, formatSu } from "../../components/ui/format";
-import { suGenerators } from "../../data/create-1.21.1/suGenerators";
+import {
+  ACTIVE_STEAM_ENGINE_ID,
+  CREATIVE_GENERATOR_ID,
+  MAX_HEATED_STEAM_ENGINE_ID,
+  SMALL_ACTIVE_STEAM_ENGINE_ID,
+  SUPERHEATED_BOILER_ID,
+  getVisibleSuGenerators
+} from "../../data/create-1.21.1/suGenerators";
 import { useTranslation } from "../../i18n";
 import { useCalculatorStore } from "../../stores/calculatorStore";
 import { useSettingsStore } from "../../stores/settingsStore";
@@ -15,6 +22,7 @@ interface GeneratorOption {
   minimumCount: number;
   recommendedCount: number;
   recommendedTotalSu: number;
+  level: string;
   notes: string;
 }
 
@@ -44,10 +52,11 @@ function categoryLabel(
 }
 
 function buildOptions(
-  su: ReturnType<typeof useCalculatorStore.getState>["result"]["su"]
+  su: ReturnType<typeof useCalculatorStore.getState>["result"]["su"],
+  visibleGenerators: ReturnType<typeof getVisibleSuGenerators>
 ): GeneratorOption[] {
   return su.generatorPlans.map((plan) => {
-    const definition = suGenerators.find(
+    const definition = visibleGenerators.find(
       (generator) => generator.id === plan.generatorId
     );
     const minimumCount = calculateGeneratorCount(su.consumedSu, plan.suCapacityEach);
@@ -61,18 +70,27 @@ function buildOptions(
       minimumCount,
       recommendedCount,
       recommendedTotalSu: recommendedCount * plan.suCapacityEach,
+      level: definition?.level ?? "-",
       notes: definition?.notes ?? (definition?.configurable ? "Configurable" : "")
     };
   });
 }
 
-function recommendedGeneratorIdForDemand(recommendedSu: number): string {
+function recommendedGeneratorIdForDemand(
+  recommendedSu: number,
+  showCreativeGenerator: boolean
+): string {
   if (recommendedSu <= 1024) return "create:water_wheel";
   if (recommendedSu <= 4096) return "create:large_water_wheel";
   if (recommendedSu <= 12000) return "create:windmill_bearing";
-  if (recommendedSu <= 32768) return "create:steam_engine_passive";
-  if (recommendedSu <= 262144) return "create:steam_engine_active";
-  return "create:creative_motor";
+  if (recommendedSu <= 32768) return SMALL_ACTIVE_STEAM_ENGINE_ID;
+  if (recommendedSu <= 65536) return ACTIVE_STEAM_ENGINE_ID;
+  if (recommendedSu <= 147456) return MAX_HEATED_STEAM_ENGINE_ID;
+  if (recommendedSu <= 294912) return SUPERHEATED_BOILER_ID;
+  if (showCreativeGenerator && recommendedSu > 1000000000) {
+    return CREATIVE_GENERATOR_ID;
+  }
+  return SUPERHEATED_BOILER_ID;
 }
 
 function planFromOption(
@@ -107,17 +125,18 @@ function buildSuggestedPlans(
         a.recommendedCount - b.recommendedCount ||
         b.plan.suCapacityEach - a.plan.suCapacityEach
     )[0];
-  const late = options.find(
-    (option) => option.plan.generatorId === "create:steam_engine_active"
-  );
+  const late =
+    options.find((option) => option.plan.generatorId === SUPERHEATED_BOILER_ID) ??
+    options.find((option) => option.plan.generatorId === MAX_HEATED_STEAM_ENGINE_ID) ??
+    options.find((option) => option.plan.generatorId === ACTIVE_STEAM_ENGINE_ID);
   const creative = options.find(
-    (option) => option.plan.generatorId === "create:creative_motor"
+    (option) => option.plan.generatorId === CREATIVE_GENERATOR_ID
   );
 
   return [
     planFromOption("Early game plan", early, recommendedSu, "Large Water Wheel setup."),
     planFromOption("Compact plan", compact, recommendedSu, "Fewest non-creative generators."),
-    planFromOption("Late game plan", late, recommendedSu, "Steam Engine Active setup."),
+    planFromOption("Late game plan", late, recommendedSu, "High-capacity steam setup."),
     planFromOption("Overkill plan", creative ?? late, recommendedSu, "Extra headroom.")
   ].filter((plan): plan is SuggestedPlan => Boolean(plan));
 }
@@ -134,7 +153,7 @@ function CompactMetric({
   tone?: string;
 }) {
   return (
-    <div className="rounded-md border border-factory-border bg-factory-panel px-3 py-2">
+    <div className="create-result-bar px-3 py-2">
       <div className="text-[11px] uppercase tracking-wide text-stone-500">{label}</div>
       <div className={`text-base font-semibold ${tone}`}>{value}</div>
       {detail ? <div className="text-xs text-stone-500">{detail}</div> : null}
@@ -147,39 +166,62 @@ export function SuPlannerTab() {
   const preferredSuGeneratorId = useSettingsStore(
     (settings) => settings.preferredSuGeneratorId
   );
+  const showCreativeGenerator = useSettingsStore(
+    (settings) => settings.showCreativeGenerator
+  );
   const t = useTranslation();
-  const options = buildOptions(su);
+  const visibleGenerators = getVisibleSuGenerators(showCreativeGenerator);
+  const options = buildOptions(su, visibleGenerators);
   const [targetSu, setTargetSu] = useState(su.recommendedSu);
   const [calculatorGeneratorId, setCalculatorGeneratorId] = useState(
     preferredSuGeneratorId
   );
+  const selectedCalculatorGenerator =
+    visibleGenerators.find((generator) => generator.id === calculatorGeneratorId) ??
+    visibleGenerators[0];
   const preferredOption = options.find(
     (option) => option.plan.generatorId === preferredSuGeneratorId
   );
   const recommendedOption = options.find(
-    (option) => option.plan.generatorId === recommendedGeneratorIdForDemand(su.recommendedSu)
+    (option) =>
+      option.plan.generatorId ===
+      recommendedGeneratorIdForDemand(su.recommendedSu, showCreativeGenerator)
   );
   const configuredGeneratedSu = preferredOption?.recommendedTotalSu ?? 0;
   const configuredSurplus = configuredGeneratedSu - su.recommendedSu;
-  const calculatorGenerator =
-    suGenerators.find((generator) => generator.id === calculatorGeneratorId) ??
-    suGenerators[0];
   const calculatorMinimumCount = calculateGeneratorCount(
     targetSu,
-    calculatorGenerator.suCapacity
+    selectedCalculatorGenerator.suCapacity
   );
   const calculatorRecommendedCount = calculateGeneratorCount(
     targetSu * (1 + su.margin),
-    calculatorGenerator.suCapacity
+    selectedCalculatorGenerator.suCapacity
   );
   const calculatorGeneratedSu =
-    calculatorRecommendedCount * calculatorGenerator.suCapacity;
+    calculatorRecommendedCount * selectedCalculatorGenerator.suCapacity;
   const calculatorSurplus = calculatorGeneratedSu - targetSu;
   const suggestedPlans = buildSuggestedPlans(options, su.recommendedSu);
+  const normalOptions = options.filter(
+    (option) => option.plan.category !== "creative"
+  );
+  const creativeOptions = options.filter(
+    (option) => option.plan.category === "creative"
+  );
+  const recommendedLabel =
+    recommendedOption?.plan.generatorId === SUPERHEATED_BOILER_ID &&
+    recommendedOption.recommendedCount > 1
+      ? t("su.multipleSuperheatedBoilers")
+      : recommendedOption?.plan.generatorName;
+
+  useEffect(() => {
+    if (selectedCalculatorGenerator.id !== calculatorGeneratorId) {
+      setCalculatorGeneratorId(selectedCalculatorGenerator.id);
+    }
+  }, [calculatorGeneratorId, selectedCalculatorGenerator.id]);
 
   return (
-    <div className="industrial-scrollbar min-h-0 overflow-auto p-3">
-      <section className="mb-3 rounded-md border border-factory-border bg-factory-panel p-3">
+    <div className="create-page industrial-scrollbar h-full min-h-0 overflow-auto p-3">
+      <section className="create-panel mx-auto mb-3 w-full max-w-6xl p-3">
         <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-factory-brass">
           {t("su.factorySummary")}
         </div>
@@ -222,8 +264,8 @@ export function SuPlannerTab() {
         </div>
       </section>
 
-      <section className="mb-3 grid gap-2 lg:grid-cols-[1.2fr_0.8fr]">
-        <div className="rounded-md border border-factory-border bg-factory-panel p-3">
+      <section className="mx-auto mb-3 grid w-full max-w-6xl gap-2 lg:grid-cols-[1.2fr_0.8fr]">
+        <div className="create-panel p-3">
           <div className="mb-3 text-xs font-semibold uppercase tracking-wide text-factory-brass">
             {t("su.countCalculator")}
           </div>
@@ -237,10 +279,13 @@ export function SuPlannerTab() {
             />
             <SelectField
               label={t("su.generatorType")}
-              value={calculatorGeneratorId}
-              options={suGenerators.map((generator) => ({
+              value={selectedCalculatorGenerator.id}
+              options={visibleGenerators.map((generator) => ({
                 value: generator.id,
-                label: generator.name
+                label:
+                  generator.level && generator.level !== "-"
+                    ? `${generator.name} ${generator.level}`
+                    : generator.name
               }))}
               onChange={setCalculatorGeneratorId}
             />
@@ -249,7 +294,7 @@ export function SuPlannerTab() {
             <CompactMetric
               label={t("su.minimumCount")}
               value={`${calculatorMinimumCount}x`}
-              detail={calculatorGenerator.name}
+              detail={selectedCalculatorGenerator.name}
             />
             <CompactMetric
               label={t("su.recommendedCount")}
@@ -269,14 +314,14 @@ export function SuPlannerTab() {
             />
           </div>
         </div>
-        <div className="rounded-md border border-factory-border bg-factory-panel p-3">
+        <div className="create-panel p-3">
           <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-factory-brass">
             {t("su.thresholdRecommendation")}
           </div>
           <div className="text-sm text-stone-300">
             <strong className="text-factory-brass">
               {recommendedOption
-                ? `${recommendedOption.recommendedCount}x ${recommendedOption.plan.generatorName}`
+                ? `${recommendedOption.recommendedCount}x ${recommendedLabel}`
                 : t("common.none")}
             </strong>
           </div>
@@ -286,16 +331,17 @@ export function SuPlannerTab() {
         </div>
       </section>
 
-      <section className="rounded-md border border-factory-border bg-factory-panel">
+      <section className="create-panel mx-auto w-full max-w-6xl">
         <div className="flex items-center gap-2 border-b border-factory-border px-3 py-2 text-xs font-semibold uppercase tracking-wide text-factory-brass">
           <Gauge size={14} />
           {t("su.generatorOptions")}
         </div>
         <div className="overflow-auto">
-          <table className="w-full min-w-[860px] text-left text-sm">
-            <thead className="bg-factory-panel2 text-[11px] uppercase tracking-wide text-stone-500">
+          <table className="create-technical-table w-full min-w-[860px] text-left text-sm">
+            <thead className="text-[11px] uppercase tracking-wide text-stone-500">
               <tr>
                 <th className="px-3 py-2">{t("su.generator")}</th>
+                <th className="px-3 py-2">{t("su.level")}</th>
                 <th className="px-3 py-2 text-right">{t("su.suEach")}</th>
                 <th className="px-3 py-2 text-right">{t("su.minimumCount")}</th>
                 <th className="px-3 py-2 text-right">{t("su.recommendedCount")}</th>
@@ -304,13 +350,18 @@ export function SuPlannerTab() {
               </tr>
             </thead>
             <tbody>
-              {options.map((option) => (
+              {normalOptions.map((option) => (
                 <tr
                   key={option.plan.id}
                   className="border-t border-factory-border/80 hover:bg-factory-panel2/60"
                 >
                   <td className="px-3 py-2 font-semibold text-stone-100">
                     {option.plan.generatorName}
+                  </td>
+                  <td className="px-3 py-2 text-stone-300">
+                    {option.plan.category === "creative"
+                      ? t("su.creativeTesting")
+                      : option.level}
                   </td>
                   <td className="px-3 py-2 text-right text-factory-su">
                     {formatSu(option.plan.suCapacityEach)}
@@ -332,11 +383,57 @@ export function SuPlannerTab() {
         </div>
       </section>
 
-      <section className="mt-3 grid gap-2 lg:grid-cols-4">
+      {showCreativeGenerator && creativeOptions.length > 0 ? (
+        <section className="create-panel mx-auto mt-3 w-full max-w-6xl">
+          <div className="flex items-center gap-2 border-b border-factory-border px-3 py-2 text-xs font-semibold uppercase tracking-wide text-factory-warning">
+            <BatteryCharging size={14} />
+            {t("su.creativeTesting")}
+          </div>
+          <div className="overflow-auto">
+            <table className="create-technical-table w-full min-w-[720px] text-left text-sm">
+              <thead className="text-[11px] uppercase tracking-wide text-stone-500">
+                <tr>
+                  <th className="px-3 py-2">{t("su.generator")}</th>
+                  <th className="px-3 py-2">{t("su.level")}</th>
+                  <th className="px-3 py-2 text-right">{t("su.suEach")}</th>
+                  <th className="px-3 py-2">{t("su.category")}</th>
+                  <th className="px-3 py-2">{t("resources.notes")}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {creativeOptions.map((option) => (
+                  <tr
+                    key={option.plan.id}
+                    className="border-t border-factory-border/80 hover:bg-factory-panel2/60"
+                  >
+                    <td className="px-3 py-2 font-semibold text-stone-100">
+                      {option.plan.generatorName}
+                    </td>
+                    <td className="px-3 py-2 text-factory-warning">
+                      {t("su.creativeTesting")}
+                    </td>
+                    <td className="px-3 py-2 text-right text-factory-su">
+                      {formatSu(option.plan.suCapacityEach)}
+                    </td>
+                    <td className="px-3 py-2 text-stone-300">
+                      {categoryLabel(option.plan.category, t)}
+                    </td>
+                    <td className="px-3 py-2 text-stone-500">
+                      {option.notes || "-"}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      ) : null}
+
+      <section className="mx-auto mt-3 grid w-full max-w-6xl gap-2 lg:grid-cols-4">
         {suggestedPlans.map((plan) => (
           <div
             key={plan.title}
-            className="rounded-md border border-factory-border bg-factory-panel p-3"
+            className="create-panel p-3"
           >
             <div className="mb-2 flex items-center gap-2 text-[11px] font-semibold uppercase tracking-wide text-stone-500">
               {plan.title.includes("Overkill") ? (

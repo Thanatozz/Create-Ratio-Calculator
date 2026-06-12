@@ -4,7 +4,7 @@ import type { CalculatorMode, RpmPreset, TransportMode } from "../../calculator-
 import { NumberField } from "../../components/controls/NumberField";
 import { SelectField } from "../../components/controls/SelectField";
 import { machines } from "../../data/create-1.21.1/machines";
-import { suGenerators } from "../../data/create-1.21.1/suGenerators";
+import { getVisibleSuGenerators } from "../../data/create-1.21.1/suGenerators";
 import { transportModes } from "../../data/create-1.21.1/transport";
 import { allRecipeSources, CREATE_BASE_SOURCE_ID } from "../../data/recipeSources";
 import { useTranslation, type Language, type ThemeMode } from "../../i18n";
@@ -27,7 +27,7 @@ function SettingsSection({
 }) {
   return (
     <details
-      className="rounded-lg border border-factory-border bg-factory-panel"
+      className="create-panel"
       open={defaultOpen}
     >
       <summary className="flex cursor-pointer items-center gap-2 border-b border-factory-border px-4 py-3 text-sm font-semibold uppercase tracking-wide text-factory-brass">
@@ -60,6 +60,7 @@ export function SettingsTab() {
   const setActiveTab = useUiStore((state) => state.setActiveTab);
   const recalculate = useCalculatorStore((state) => state.calculate);
   const t = useTranslation();
+  const visibleSuGenerators = getVisibleSuGenerators(settings.showCreativeGenerator);
 
   function updateAndRecalculate(update: () => void) {
     update();
@@ -67,8 +68,8 @@ export function SettingsTab() {
   }
 
   return (
-    <div className="industrial-scrollbar min-h-0 overflow-auto p-4 pb-12">
-      <div className="mb-4 flex items-center justify-between gap-3">
+    <div className="create-page industrial-scrollbar h-full min-h-0 overflow-auto p-4 pb-24">
+      <div className="mx-auto mb-4 flex w-full max-w-6xl items-center justify-between gap-3">
         <div>
           <h2 className="text-sm font-semibold uppercase tracking-wide text-factory-brass">
             {t("settings.title")}
@@ -87,7 +88,7 @@ export function SettingsTab() {
         </button>
       </div>
 
-      <div className="grid gap-4">
+      <div className="mx-auto grid w-full max-w-6xl gap-4">
         <SettingsSection title={t("settings.general")} icon={<SlidersHorizontal size={16} />}>
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             <label className="grid gap-1.5 text-sm text-stone-300">
@@ -165,9 +166,11 @@ export function SettingsTab() {
             <SelectField
               label={t("settings.preferredSuSource")}
               value={settings.preferredSuGeneratorId}
-              options={suGenerators.map((generator) => ({
+              options={visibleSuGenerators.map((generator) => ({
                 value: generator.id,
-                label: generator.name
+                label: generator.level && generator.level !== "-"
+                  ? `${generator.name} ${generator.level}`
+                  : generator.name
               }))}
               onChange={settings.setPreferredSuGeneratorId}
             />
@@ -310,12 +313,35 @@ export function SettingsTab() {
           </div>
         </SettingsSection>
 
+        <SettingsSection title={t("settings.transportConstants")} icon={<SlidersHorizontal size={16} />} defaultOpen={false}>
+          <div className="overflow-auto">
+            <table className="create-technical-table w-full min-w-[520px] text-left text-sm">
+              <thead className="text-[11px] uppercase tracking-wide text-stone-500">
+                <tr>
+                  <th className="px-3 py-2">{t("factory.transport")}</th>
+                  <th className="px-3 py-2 text-right">Ticks</th>
+                  <th className="px-3 py-2">{t("resources.notes")}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {Object.values(transportModes).map((mode) => (
+                  <tr key={mode.id} className="border-t border-factory-border/80">
+                    <td className="px-3 py-2 font-semibold text-stone-100">{mode.name}</td>
+                    <td className="px-3 py-2 text-right text-factory-brass">{mode.inputDelayTicks}</td>
+                    <td className="px-3 py-2 text-stone-500">{mode.notes ?? "-"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </SettingsSection>
+
         <SettingsSection title={t("settings.suGeneratorSettings")} icon={<Zap size={16} />} defaultOpen={false}>
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-            {suGenerators.map((generator) => (
+            {visibleSuGenerators.map((generator) => (
               <NumberField
                 key={generator.id}
-                label={`${generator.name} capacity`}
+                label={`${generator.name}${generator.level && generator.level !== "-" ? ` ${generator.level}` : ""} capacity`}
                 value={
                   settings.generatorCapacityOverrides[generator.id] ??
                   generator.suCapacity
@@ -343,6 +369,18 @@ export function SettingsTab() {
                 }
               />
               {t("settings.showAdvanced")}
+            </label>
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={settings.showCreativeGenerator}
+                onChange={(event) =>
+                  updateAndRecalculate(() =>
+                    settings.setShowCreativeGenerator(event.target.checked)
+                  )
+                }
+              />
+              {t("settings.showCreativeGenerator")}
             </label>
             <label className="flex items-center gap-2">
               <input
