@@ -270,21 +270,21 @@ export function SettingsTab() {
                     }
                   />
                   <span>
-                    <span className="font-semibold text-stone-100">
+                    <span className="ml-3 font-semibold text-stone-100">
                       {source.displayName}
                     </span>
                     {locked ? (
                       <span className="ml-2 text-xs text-factory-brass">{t("common.locked")}</span>
                     ) : null}
-                    <span className="block text-xs text-stone-500">
+                    <span className="ml-3 block text-xs text-stone-500"> 
                       {formatSourceStats(source, t)}
-                      {source.version ? ` - ${source.version}` : ""}
-                      {source.fileName ? ` - ${source.fileName}` : ""}
+                      {/* {source.version ? ` - ${source.version}` : ""}
+                      {source.fileName ? ` - ${source.fileName}` : ""} */}
                     </span>
                   </span>
-                  <span className="text-xs uppercase tracking-wide text-stone-500">
+                  {/* <span className="text-xs uppercase tracking-wide text-stone-500">
                     {source.loader ?? "unknown"}
-                  </span>
+                  </span> */}
                 </label>
               );
             })}
@@ -313,7 +313,7 @@ export function SettingsTab() {
           </div>
         </SettingsSection>
 
-        <SettingsSection title={t("settings.transportConstants")} icon={<SlidersHorizontal size={16} />} defaultOpen={false}>
+        {/* <SettingsSection title={t("settings.transportConstants")} icon={<SlidersHorizontal size={16} />} defaultOpen={false}>
           <div className="overflow-auto">
             <table className="create-technical-table w-full min-w-[520px] text-left text-sm">
               <thead className="text-[11px] uppercase tracking-wide text-stone-500">
@@ -334,7 +334,7 @@ export function SettingsTab() {
               </tbody>
             </table>
           </div>
-        </SettingsSection>
+        </SettingsSection> */}
 
         <SettingsSection title={t("settings.suGeneratorSettings")} icon={<Zap size={16} />} defaultOpen={false}>
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
@@ -358,7 +358,7 @@ export function SettingsTab() {
           </div>
         </SettingsSection>
 
-        <SettingsSection title={t("settings.advanced")} defaultOpen={false}>
+        {/* <SettingsSection title={t("settings.advanced")} defaultOpen={false}>
           <div className="grid gap-3 text-sm text-stone-300">
             <label className="flex items-center gap-2">
               <input
@@ -414,7 +414,7 @@ export function SettingsTab() {
               </>
             ) : null}
           </div>
-        </SettingsSection>
+        </SettingsSection> */}
       </div>
     </div>
   );

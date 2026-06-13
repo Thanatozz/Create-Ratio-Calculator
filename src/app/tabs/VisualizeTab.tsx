@@ -119,7 +119,8 @@ export function VisualizeTab() {
   const requestFitView = useUiStore((state) => state.requestFitView);
   const [leftOpen, setLeftOpen] = useState(true);
   const [rightOpen, setRightOpen] = useState(true);
-  const rightExpanded = Boolean(selectedNode && rightOpen);
+  const rightExpanded = false;
+  // const rightExpanded = Boolean(selectedNode && rightOpen);
   const visibleSuGenerators = getVisibleSuGenerators(showCreativeGenerator);
   const preferredGenerator =
     visibleSuGenerators.find((generator) => generator.id === preferredSuGeneratorId) ??
@@ -144,6 +145,7 @@ export function VisualizeTab() {
       className="create-page grid h-full min-h-0 gap-2 p-2"
       style={{
         gridTemplateColumns: `${leftOpen ? "260px" : "42px"} minmax(0, 1fr) ${rightExpanded ? "320px" : "42px"}`
+        // gridTemplateColumns: `${leftOpen ? "260px" : "42px"} minmax(0, 1fr) ${rightExpanded ? "320px" : "42px"}`
       }}
     >
       <aside className="create-panel min-h-0 overflow-hidden">
@@ -372,7 +374,7 @@ export function VisualizeTab() {
         </div>
       </section>
 
-      <aside className="create-panel min-h-0 overflow-hidden">
+      {/* <aside className="create-panel min-h-0 overflow-hidden">
         {rightExpanded ? (
           <div className="industrial-scrollbar h-full overflow-auto p-3">
             <div className="mb-3 flex items-center justify-between gap-2">
@@ -454,7 +456,7 @@ export function VisualizeTab() {
             <ArrowLeftToLine size={18} />
           </button>
         )}
-      </aside>
+      </aside> */}
     </div>
   );
 }

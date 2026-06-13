@@ -6,7 +6,7 @@ export const en: TranslationDictionary = {
   "navigation.resources": "Resources",
   "navigation.suPlanner": "SU Planner",
   "navigation.settings": "Settings",
-  "app.subtitle": "Minecraft 1.21.1 / Create 6.x production planner",
+  "app.subtitle": "Create 6.x production planner",
 
   "common.calculate": "Calculate",
   "common.reset": "Reset",
