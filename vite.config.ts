@@ -3,7 +3,7 @@ import react from "@vitejs/plugin-react";
 
 export default defineConfig({
   plugins: [react()],
-  base: process.env.GITHUB_PAGES === "true" ? "/create-ratio-calculator/" : "/",
+  base: process.env.GITHUB_PAGES === "true" ? "/Create-Ratio-Calculator/" : "/",
   test: {
     environment: "jsdom",
     globals: true,
