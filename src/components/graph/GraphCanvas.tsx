@@ -1,5 +1,4 @@
 import {
-  Background,
   Controls,
   MarkerType,
   ReactFlow,
@@ -193,7 +192,6 @@ export function GraphCanvas({ compact = false }: { compact?: boolean }) {
         maxZoom={1.8}
         onNodeClick={(_, node) => setSelectedNodeId(node.id)}
       >
-        <Background color="#3a342a" gap={24} />
         <Controls className="!border-factory-border !bg-factory-panel !text-stone-100" />
       </ReactFlow>
     </div>

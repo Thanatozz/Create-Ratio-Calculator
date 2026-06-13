@@ -76,81 +76,106 @@
 [data-page-theme="andesite"] {
   --panel-bg-rgb: 18 20 22;
   --panel-bg-muted-rgb: 29 31 33;
-  --panel-border-rgb: 111 113 109;
+  --panel-border-rgb: 125 93 54;
   --page-accent-rgb: 164 162 151;
   --page-accent-muted-rgb: 89 90 86;
   --page-accent-strong-rgb: 215 212 198;
-  --panel-border-accent-rgb: 139 138 127;
+  --panel-border-accent-rgb: 125 93 54;
 }
 
 [data-page-theme="brass"] {
-  --panel-bg-rgb: 25 21 15;
-  --panel-bg-muted-rgb: 36 30 20;
-  --panel-border-rgb: 126 92 42;
-  --page-accent-rgb: 214 168 79;
-  --page-accent-muted-rgb: 105 77 34;
-  --page-accent-strong-rgb: 244 207 113;
-  --panel-border-accent-rgb: 151 111 46;
+  /* Brass Casing - dark mode, less eye-straining */
+
+  --panel-bg-rgb: 25 16 9;
+  --panel-bg-muted-rgb: 36 24 13;
+
+  /* Borde más oscuro y menos brillante */
+  --panel-border-rgb: 116 78 30;
+  --panel-border-accent-rgb: 158 111 43;
+
+  /* Acentos brass */
+  --page-accent-rgb: 190 137 49;
+  --page-accent-muted-rgb: 86 55 24;
+  --page-accent-strong-rgb: 239 190 82;
 }
 
 [data-page-theme="copper"] {
-  --panel-bg-rgb: 27 20 17;
-  --panel-bg-muted-rgb: 40 27 22;
-  --panel-border-rgb: 133 70 45;
+  /* Copper Casing - dark mode */
+
+  /* Centro gris oscuro / metal */
+  --panel-bg-rgb: 25 28 29;
+  --panel-bg-muted-rgb: 38 41 41;
+
+  /* Marco cobre */
+  --panel-border-rgb: 139 71 45;
+  --panel-border-accent-rgb: 190 92 55;
+
+  /* Acentos cobre */
   --page-accent-rgb: 205 103 58;
-  --page-accent-muted-rgb: 111 58 39;
-  --page-accent-strong-rgb: 242 148 91;
-  --panel-border-accent-rgb: 151 77 49;
+  --page-accent-muted-rgb: 97 52 38;
+  --page-accent-strong-rgb: 239 143 88;
 }
 
 [data-page-theme="train"] {
-  --panel-bg-rgb: 25 19 15;
-  --panel-bg-muted-rgb: 39 27 20;
-  --panel-border-rgb: 117 79 52;
-  --page-accent-rgb: 177 126 73;
-  --page-accent-muted-rgb: 82 54 38;
-  --page-accent-strong-rgb: 229 183 112;
-  --panel-border-accent-rgb: 122 83 54;
+  --panel-bg-rgb: 13 18 19;
+  --panel-bg-muted-rgb: 24 30 31;
+  --panel-border-rgb: 190 143 57;
+  --panel-border-accent-rgb: 226 185 87;
+  --page-accent-rgb: 205 154 62;
+  --page-accent-muted-rgb: 98 64 36;
+  --page-accent-strong-rgb: 255 224 126;
 }
 
 :root[data-theme="light"] [data-page-theme="andesite"] {
   --panel-bg-rgb: 232 231 223;
   --panel-bg-muted-rgb: 211 211 203;
-  --panel-border-rgb: 117 122 125;
+  --panel-border-rgb: 99 74 42;
   --page-accent-rgb: 91 97 103;
   --page-accent-muted-rgb: 174 171 159;
   --page-accent-strong-rgb: 51 57 63;
-  --panel-border-accent-rgb: 104 108 111;
+  --panel-border-accent-rgb: 99 74 42;
 }
 
 :root[data-theme="light"] [data-page-theme="brass"] {
-  --panel-bg-rgb: 242 232 202;
-  --panel-bg-muted-rgb: 222 199 147;
-  --panel-border-rgb: 170 121 39;
-  --page-accent-rgb: 147 97 23;
-  --page-accent-muted-rgb: 210 184 126;
-  --page-accent-strong-rgb: 105 67 18;
-  --panel-border-accent-rgb: 164 116 39;
+  --panel-bg-rgb: 232 210 157;
+  --panel-bg-muted-rgb: 201 161 87;
+
+  --panel-border-rgb: 141 86 25;
+  --panel-border-accent-rgb: 217 166 64;
+
+  --page-accent-rgb: 130 74 17;
+  --page-accent-muted-rgb: 194 151 72;
+  --page-accent-strong-rgb: 77 43 10;
 }
 
 :root[data-theme="light"] [data-page-theme="copper"] {
-  --panel-bg-rgb: 242 224 212;
-  --panel-bg-muted-rgb: 224 176 145;
-  --panel-border-rgb: 180 89 49;
-  --page-accent-rgb: 166 73 35;
-  --page-accent-muted-rgb: 216 154 117;
-  --page-accent-strong-rgb: 116 49 28;
-  --panel-border-accent-rgb: 177 87 48;
+  /* Copper Casing - light mode */
+
+  /* Centro gris claro / metal suave */
+  --panel-bg-rgb: 226 224 216;
+  --panel-bg-muted-rgb: 203 199 189;
+
+  /* Marco cobre */
+  --panel-border-rgb: 163 82 47;
+  --panel-border-accent-rgb: 207 105 61;
+
+  /* Acentos cobre */
+  --page-accent-rgb: 157 69 35;
+  --page-accent-muted-rgb: 211 143 104;
+  --page-accent-strong-rgb: 101 45 27;
 }
 
 :root[data-theme="light"] [data-page-theme="train"] {
-  --panel-bg-rgb: 238 224 205;
-  --panel-bg-muted-rgb: 215 184 146;
-  --panel-border-rgb: 137 88 50;
-  --page-accent-rgb: 122 74 42;
-  --page-accent-muted-rgb: 193 151 105;
-  --page-accent-strong-rgb: 84 48 31;
-  --panel-border-accent-rgb: 139 91 51;
+  --panel-bg-rgb: 239 234 218;
+  --panel-bg-muted-rgb: 222 212 188;
+  --panel-border-rgb: 178 132 52;
+  --panel-border-accent-rgb: 218 171 72;
+  --page-accent-rgb: 168 112 38;
+  --page-accent-muted-rgb: 207 172 101;
+  --page-accent-strong-rgb: 108 68 28;
+  --input-bg-rgb: 246 241 226;
+  --input-border-rgb: 164 124 58;
+  --input-text-rgb: 35 30 24;
 }
 
 * {
@@ -230,6 +255,40 @@ button {
 
 [data-page-theme] .bg-factory-panel2 {
   background-color: rgb(var(--panel-bg-muted-rgb) / var(--tw-bg-opacity, 1));
+}
+
+.create-toolbar-button {
+  border: 1px solid rgb(var(--panel-border-rgb));
+  background:
+    linear-gradient(180deg, rgb(var(--page-accent-muted-rgb) / 0.18), rgb(var(--panel-bg-muted-rgb))),
+    rgb(var(--panel-bg-muted-rgb));
+  color: rgb(var(--text-primary-rgb));
+  box-shadow:
+    inset 0 1px 0 rgb(var(--page-accent-rgb) / 0.22),
+    inset 0 0 0 1px rgb(0 0 0 / 0.18);
+}
+
+.create-toolbar-button svg {
+  stroke: currentColor;
+}
+
+.create-toolbar-button:hover {
+  border-color: rgb(var(--page-accent-rgb));
+  background:
+    linear-gradient(180deg, rgb(var(--page-accent-muted-rgb) / 0.34), rgb(var(--panel-bg-muted-rgb))),
+    rgb(var(--panel-bg-muted-rgb));
+  color: rgb(var(--page-accent-strong-rgb));
+}
+
+.create-toolbar-button--active {
+  border-color: rgb(var(--page-accent-strong-rgb));
+  background:
+    linear-gradient(180deg, rgb(var(--page-accent-strong-rgb)), rgb(var(--page-accent-rgb))) !important;
+  color: #0b0804 !important;
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.26),
+    inset 0 0 0 1px rgb(0 0 0 / 0.2),
+    0 0 0 1px rgb(var(--page-accent-muted-rgb) / 0.48);
 }
 
 .react-flow__attribution {
@@ -420,12 +479,11 @@ button {
 .create-graph-canvas {
   border: 2px solid rgb(var(--panel-border-rgb));
   border-radius: 2px;
-  background:
-    linear-gradient(180deg, rgb(var(--page-accent-muted-rgb) / 0.12), rgb(var(--panel-bg-muted-rgb) / 0.24));
+  background: none;
+  background-size: 96px 96px, 96px 96px, 24px 24px, 24px 24px, auto;
   box-shadow:
-    inset 0 2px 0 rgb(var(--page-accent-rgb) / 0.42),
-    0 14px 34px rgb(0 0 0 / 0.16),
-    0 0 0 1px rgb(var(--page-accent-muted-rgb) / 0.36);
+    inset 0 2px 0 rgb(var(--page-accent-rgb) / 0.32),
+    inset 0 0 0 1px rgb(0 0 0 / 0.26);
 }
 
 .create-graph-canvas .react-flow,
@@ -495,7 +553,8 @@ button {
   position: absolute;
   inset: 0 0 auto;
   height: 3px;
-  background: linear-gradient(90deg, transparent, rgb(var(--page-accent-rgb) / 0.85), transparent);
+  background:
+    linear-gradient(90deg, rgb(var(--page-accent-muted-rgb) / 0.32), rgb(var(--page-accent-rgb) / 0.86), rgb(var(--page-accent-muted-rgb) / 0.32));
 }
 
 .create-graph-node--machine {
@@ -534,13 +593,43 @@ button {
 }
 
 :root[data-theme="light"] .create-graph-canvas {
-  background:
-    linear-gradient(180deg, rgb(var(--page-accent-muted-rgb) / 0.12), rgb(var(--panel-bg-rgb) / 0.42));
+  background: none;
+  background-size: 96px 96px, 96px 96px, 24px 24px, 24px 24px, auto;
+  box-shadow:
+    inset 0 2px 0 rgb(var(--page-accent-rgb) / 0.3),
+    inset 0 0 0 1px rgb(var(--page-accent-muted-rgb) / 0.38);
 }
 
 :root[data-theme="light"] [data-page-theme] button.border-factory-border {
   background-image:
     linear-gradient(180deg, rgb(255 255 255 / 0.48), rgb(var(--page-accent-muted-rgb) / 0.24));
+}
+
+:root[data-theme="light"] .create-toolbar-button {
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.5), rgb(var(--page-accent-muted-rgb) / 0.2)),
+    rgb(var(--panel-bg-rgb));
+  color: rgb(var(--text-primary-rgb));
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.52),
+    inset 0 0 0 1px rgb(var(--page-accent-muted-rgb) / 0.28);
+}
+
+:root[data-theme="light"] .create-toolbar-button:hover {
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.6), rgb(var(--page-accent-muted-rgb) / 0.36)),
+    rgb(var(--panel-bg-rgb));
+}
+
+:root[data-theme="light"] .create-toolbar-button--active {
+  background:
+    linear-gradient(180deg, rgb(var(--page-accent-rgb)), rgb(var(--page-accent-strong-rgb))) !important;
+  color: #fff7e8 !important;
+}
+
+:root[data-theme="light"] .create-graph-node::before {
+  background:
+    linear-gradient(90deg, rgb(var(--page-accent-muted-rgb) / 0.46), rgb(var(--page-accent-rgb) / 0.9), rgb(var(--page-accent-muted-rgb) / 0.46));
 }
 
 :root[data-theme="light"] .create-primary-button,

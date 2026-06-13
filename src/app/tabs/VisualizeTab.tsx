@@ -73,9 +73,9 @@ function ToolbarButton({
       type="button"
       title={title}
       onClick={onClick}
-      className={`flex h-8 items-center gap-1.5 rounded px-2 text-xs ${
+      className={`create-toolbar-button flex h-8 items-center gap-1.5 rounded px-2 text-xs ${
         active
-          ? "bg-factory-brass text-black"
+          ? "create-toolbar-button--active bg-factory-brass text-black"
           : "border border-factory-border bg-factory-panel2 text-stone-200 hover:border-factory-brass"
       }`}
     >
@@ -320,28 +320,40 @@ export function VisualizeTab() {
               <summary className="cursor-pointer px-3 py-2 text-xs font-semibold uppercase tracking-wide text-factory-brass">
                 {t("visualize.suSummary")}
               </summary>
-              <div className="grid gap-1 border-t border-factory-border px-3 py-2 text-xs text-stone-300">
-                <div className="flex justify-between gap-3">
-                  <span>{t("visualize.needed")}</span>
-                  <strong className="text-factory-su">{formatSu(result.su.recommendedSu)}</strong>
-                </div>
-                <div className="flex justify-between gap-3">
-                  <span>{t("visualize.configured")}</span>
-                  <strong>{preferredGenerator?.name ?? t("common.none")}</strong>
-                </div>
-                {preferredSuPlan ? (
-                  <div className="flex justify-between gap-3">
-                    <span>{t("visualize.configuredCount")}</span>
-                    <strong>{preferredSuPlan.count}x</strong>
-                  </div>
-                ) : null}
-                <div className="flex justify-between gap-3">
-                  <span>{t("visualize.recommended")}</span>
-                  <strong className="text-factory-brass">
-                    {recommendedSuPlan
-                      ? `${recommendedSuPlan.count}x ${recommendedSuPlan.generatorName}`
-                      : t("common.none")}
+              <div className="grid gap-2 border-t border-factory-border px-3 py-2 text-xs text-stone-300">
+                <div className="grid gap-0.5">
+                  <span className="text-[10px] uppercase tracking-wide text-stone-500">
+                    {t("visualize.needed")}
+                  </span>
+                  <strong className="text-sm text-factory-su">
+                    {formatSu(result.su.recommendedSu)}
                   </strong>
+                </div>
+                <div className="leading-snug">
+                  <span className="mr-1 text-[10px] uppercase tracking-wide text-stone-500">
+                    {t("visualize.setup")}:
+                  </span>
+                  {preferredSuPlan && preferredGenerator ? (
+                    <span>
+                      <strong className="text-factory-brass">{preferredSuPlan.count}x</strong>{" "}
+                      <span className="text-stone-200">{preferredGenerator.name}</span>
+                    </span>
+                  ) : (
+                    <strong>{t("common.none")}</strong>
+                  )}
+                </div>
+                <div className="leading-snug">
+                  <span className="mr-1 text-[10px] uppercase tracking-wide text-stone-500">
+                    {t("visualize.recommended")}:
+                  </span>
+                  {recommendedSuPlan ? (
+                    <span>
+                      <strong className="text-factory-brass">{recommendedSuPlan.count}x</strong>{" "}
+                      <span className="text-stone-200">{recommendedSuPlan.generatorName}</span>
+                    </span>
+                  ) : (
+                    <strong>{t("common.none")}</strong>
+                  )}
                 </div>
               </div>
             </details>

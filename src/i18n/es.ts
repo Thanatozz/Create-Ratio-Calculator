@@ -88,6 +88,7 @@ export const es: TranslationDictionary = {
   "visualize.suSummary": "Resumen SU",
   "visualize.machineSummary": "Máquinas",
   "visualize.needed": "Necesario",
+  "visualize.setup": "Configuración",
   "visualize.configured": "Configurado",
   "visualize.configuredCount": "Cantidad configurada",
   "visualize.recommended": "Recomendado",

@@ -7,7 +7,7 @@ import { useUiStore } from "../stores/uiStore";
 import type { AppTab } from "./routes";
 import { DebugTab } from "./tabs/DebugTab";
 import { FactoryTab } from "./tabs/FactoryTab";
-import { ResourcesTab } from "./tabs/ResourcesTab";
+// import { ResourcesTab } from "./tabs/ResourcesTab";
 import { SettingsTab } from "./tabs/SettingsTab";
 import { SuPlannerTab } from "./tabs/SuPlannerTab";
 import { VisualizeTab } from "./tabs/VisualizeTab";
@@ -20,8 +20,8 @@ function ActiveTab() {
       return <FactoryTab />;
     case "visualize":
       return <VisualizeTab />;
-    case "resources":
-      return <ResourcesTab />;
+    // case "resources":
+    //   return <ResourcesTab />;
     case "su_planner":
       return <SuPlannerTab />;
     case "settings":
@@ -34,7 +34,7 @@ function ActiveTab() {
 const pageThemes: Record<AppTab, "andesite" | "brass" | "copper" | "train"> = {
   factory: "andesite",
   visualize: "brass",
-  resources: "brass",
+  // resources: "brass",
   su_planner: "copper",
   settings: "train",
   debug: "andesite"

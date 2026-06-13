@@ -221,7 +221,7 @@ export function SuPlannerTab() {
 
   return (
     <div className="create-page industrial-scrollbar h-full min-h-0 overflow-auto p-3">
-      <section className="create-panel mx-auto mb-3 w-full max-w-6xl p-3">
+      {/* [<section className="create-panel mx-auto mb-3 w-full max-w-6xl p-3">
         <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-factory-brass">
           {t("su.factorySummary")}
         </div>
@@ -262,7 +262,7 @@ export function SuPlannerTab() {
             tone={configuredSurplus >= 0 ? "text-factory-green" : "text-factory-danger"}
           />
         </div>
-      </section>
+      </section>] */}
 
       <section className="mx-auto mb-3 grid w-full max-w-6xl gap-2 lg:grid-cols-[1.2fr_0.8fr]">
         <div className="create-panel p-3">
@@ -282,10 +282,7 @@ export function SuPlannerTab() {
               value={selectedCalculatorGenerator.id}
               options={visibleGenerators.map((generator) => ({
                 value: generator.id,
-                label:
-                  generator.level && generator.level !== "-"
-                    ? `${generator.name} ${generator.level}`
-                    : generator.name
+                label: generator.name
               }))}
               onChange={setCalculatorGeneratorId}
             />
@@ -314,7 +311,7 @@ export function SuPlannerTab() {
             />
           </div>
         </div>
-        <div className="create-panel p-3">
+        {/* <div className="create-panel p-3">
           <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-factory-brass">
             {t("su.thresholdRecommendation")}
           </div>
@@ -328,7 +325,7 @@ export function SuPlannerTab() {
           <div className="mt-1 text-xs text-stone-500">
             {t("su.moveUpNote")}
           </div>
-        </div>
+        </div> */}
       </section>
 
       <section className="create-panel mx-auto w-full max-w-6xl">
@@ -429,7 +426,7 @@ export function SuPlannerTab() {
         </section>
       ) : null}
 
-      <section className="mx-auto mt-3 grid w-full max-w-6xl gap-2 lg:grid-cols-4">
+      {/* <section className="mx-auto mt-3 grid w-full max-w-6xl gap-2 lg:grid-cols-4">
         {suggestedPlans.map((plan) => (
           <div
             key={plan.title}
@@ -454,7 +451,7 @@ export function SuPlannerTab() {
             </div>
           </div>
         ))}
-      </section>
+      </section> */}
     </div>
   );
 }
