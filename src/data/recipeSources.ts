@@ -85,22 +85,68 @@ function normalizedToRecipeDefinition(
   };
 }
 
+// The real "Create" mod is shipped as one of the scanned sources. We fold it
+// into the locked base so there is a single canonical "Create" base instead of
+// a curated MVP placeholder plus a duplicate "Create" addon entry.
+const REAL_CREATE_SOURCE_ID = "create";
+
+const realCreateSource = generatedRecipeSources.find(
+  (source) => source.id === REAL_CREATE_SOURCE_ID
+);
+
+// Curated MVP recipes power the solver's special handling (e.g. the cobblestone
+// generator drill and the default crushing/cobblestone scenario) that the real
+// Create export does not contain, so they take precedence on id collisions.
+const mvpBaseDefinitions: RecipeDefinition[] = createBaseRecipes.map((recipe) => ({
+  ...recipe,
+  sourceId: CREATE_BASE_SOURCE_ID,
+  sourceName: "Create"
+}));
+
+const mvpBaseIds = new Set(mvpBaseDefinitions.map((recipe) => recipe.id));
+
+const realCreateDefinitions: RecipeDefinition[] = realCreateSource
+  ? realCreateSource.recipes
+      .map((recipe) => normalizedToRecipeDefinition(recipe, realCreateSource))
+      .filter((recipe): recipe is RecipeDefinition => Boolean(recipe))
+      .filter((recipe) => !mvpBaseIds.has(recipe.id))
+      .map((recipe) => ({
+        ...recipe,
+        sourceId: CREATE_BASE_SOURCE_ID,
+        sourceName: "Create"
+      }))
+  : [];
+
+/** The full set of recipes that make up the locked "Create" base. */
+export const createBaseRecipeDefinitions: RecipeDefinition[] = [
+  ...mvpBaseDefinitions,
+  ...realCreateDefinitions
+];
+
 export const createBaseRecipeSource: RecipeSource = {
   id: CREATE_BASE_SOURCE_ID,
-  displayName: "Create Base",
+  displayName: "Create",
+  version: realCreateSource?.version,
   defaultEnabled: true,
   alwaysEnabled: true,
-  recipeCount: createBaseRecipes.length,
-  supportedRecipeCount: createBaseRecipes.length,
+  recipeCount: createBaseRecipeDefinitions.length,
+  supportedRecipeCount: createBaseRecipeDefinitions.length,
   unsupportedRecipeCount: 0,
-  tagCount: 0,
-  recipes: createBaseRecipes.map(recipeDefinitionToNormalized),
-  tags: []
+  tagCount: realCreateSource?.tagCount ?? 0,
+  recipes: [
+    ...createBaseRecipes.map(recipeDefinitionToNormalized),
+    ...(realCreateSource
+      ? realCreateSource.recipes.filter((recipe) => !mvpBaseIds.has(recipe.id))
+      : [])
+  ],
+  tags: realCreateSource?.tags ?? []
 };
 
 export const allRecipeSources: RecipeSource[] = [
   createBaseRecipeSource,
-  ...generatedRecipeSources
+  ...generatedRecipeSources.filter(
+    (source) => source.id !== REAL_CREATE_SOURCE_ID
+  )
 ];
 
 export function normalizeEnabledRecipeSourceIds(
@@ -134,11 +180,7 @@ export function getRecipeDefinitionsFromEnabledSources(
   return sources.flatMap((source) => {
     if (source.alwaysEnabled || enabled.has(source.id)) {
       if (source.id === CREATE_BASE_SOURCE_ID) {
-        return createBaseRecipes.map((recipe) => ({
-          ...recipe,
-          sourceId: CREATE_BASE_SOURCE_ID,
-          sourceName: "Create Base"
-        }));
+        return createBaseRecipeDefinitions;
       }
 
       return source.recipes

@@ -15,13 +15,18 @@ export function ItemNode({ data }: NodeProps<ItemFlowNode>) {
     typeof data.badge === "string"
       ? t(`badge.${data.badge}`)
       : undefined;
+  const vertical = data.direction === "DOWN";
 
   return (
-    <div className="create-graph-node create-graph-node--item min-w-48 px-3 py-2.5 shadow-panel">
-      <Handle type="target" position={Position.Left} className="!bg-factory-brass" />
-      <div className="flex items-center gap-2 text-sm font-semibold text-stone-100">
+    <div className="create-graph-node create-graph-node--item min-w-40 max-w-[78vw] px-3 py-2.5 shadow-panel md:min-w-48 md:max-w-none">
+      <Handle
+        type="target"
+        position={vertical ? Position.Top : Position.Left}
+        className="!bg-factory-brass"
+      />
+      <div className="flex min-w-0 items-center gap-2 text-sm font-semibold text-stone-100">
         <CreateIcon id={itemId} />
-        {data.label}
+        <span className="min-w-0 break-words">{data.label}</span>
       </div>
       <div className="mt-1 text-xs text-stone-500">{data.subtitle}</div>
       {data.metrics?.Rate ? (
@@ -32,7 +37,11 @@ export function ItemNode({ data }: NodeProps<ItemFlowNode>) {
           {badge}
         </div>
       ) : null}
-      <Handle type="source" position={Position.Right} className="!bg-factory-brass" />
+      <Handle
+        type="source"
+        position={vertical ? Position.Bottom : Position.Right}
+        className="!bg-factory-brass"
+      />
     </div>
   );
 }

@@ -1,19 +1,22 @@
 import {
   Controls,
   MarkerType,
+  Position,
   ReactFlow,
+  ReactFlowProvider,
   useNodesState,
+  useReactFlow,
   type Edge,
-  type Node,
-  type ReactFlowInstance
+  type Node
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type {
   ProductionGraph,
   ProductionGraphNodeData
 } from "../../calculator-core/types";
 import { layoutGraph } from "../../calculator-core/graph/layoutGraph";
+import { useIsMobile } from "../../hooks/useIsMobile";
 import { useCalculatorStore } from "../../stores/calculatorStore";
 import { useUiStore } from "../../stores/uiStore";
 import { createIconPlaceholdersEnabled, itemIconMap } from "../../data/iconMaps";
@@ -57,12 +60,18 @@ function filterGraph(graph: ProductionGraph, options: {
   };
 }
 
-function toReactFlowNodes(graph: ProductionGraph): Node<ProductionGraphNodeData>[] {
+function toReactFlowNodes(
+  graph: ProductionGraph,
+  direction: "RIGHT" | "DOWN"
+): Node<ProductionGraphNodeData>[] {
+  const vertical = direction === "DOWN";
   return graph.nodes.map((node) => ({
     id: node.id,
     type: node.type,
     position: node.position,
-    data: node.data
+    data: { ...node.data, direction },
+    sourcePosition: vertical ? Position.Bottom : Position.Right,
+    targetPosition: vertical ? Position.Top : Position.Left
   }));
 }
 
@@ -134,26 +143,28 @@ function toReactFlowEdges(graph: ProductionGraph): Edge[] {
   }));
 }
 
-export function GraphCanvas({ compact = false }: { compact?: boolean }) {
+function GraphCanvasInner({ compact = false }: { compact?: boolean }) {
   const result = useCalculatorStore((state) => state.result);
   const setSelectedNodeId = useCalculatorStore((state) => state.setSelectedNodeId);
   const graphDirection = useUiStore((state) => state.graphDirection);
   const showByproducts = useUiStore((state) => state.showByproducts);
   const autoLayoutVersion = useUiStore((state) => state.autoLayoutVersion);
   const fitViewVersion = useUiStore((state) => state.fitViewVersion);
+  const isMobile = useIsMobile();
+  const { fitView } = useReactFlow();
+  const containerRef = useRef<HTMLDivElement>(null);
   const [laidOutGraph, setLaidOutGraph] = useState<ProductionGraph>(() => result.graph);
   const [nodes, setNodes, onNodesChange] = useNodesState<Node<ProductionGraphNodeData>>([]);
-  const [flowInstance, setFlowInstance] =
-    useState<ReactFlowInstance<Node<ProductionGraphNodeData>, Edge> | null>(null);
   const filteredGraph = useMemo(
     () => filterGraph(laidOutGraph, { showByproducts }),
     [laidOutGraph, showByproducts]
   );
   const edges = useMemo(() => toReactFlowEdges(filteredGraph), [filteredGraph]);
+  const fitPadding = isMobile ? 0.1 : 0.18;
 
   useEffect(() => {
     let cancelled = false;
-    layoutGraph(result.graph, graphDirection).then((nextGraph) => {
+    layoutGraph(result.graph, graphDirection, { compact: isMobile }).then((nextGraph) => {
       if (!cancelled) {
         setLaidOutGraph(nextGraph);
       }
@@ -162,38 +173,78 @@ export function GraphCanvas({ compact = false }: { compact?: boolean }) {
     return () => {
       cancelled = true;
     };
-  }, [result.graph, graphDirection, autoLayoutVersion]);
+  }, [result.graph, graphDirection, autoLayoutVersion, isMobile]);
 
   useEffect(() => {
-    setNodes(toReactFlowNodes(filteredGraph));
-  }, [filteredGraph, setNodes]);
+    setNodes(toReactFlowNodes(filteredGraph, graphDirection));
+  }, [filteredGraph, graphDirection, setNodes]);
 
+  // Refit whenever the laid-out graph or an explicit fit request changes.
   useEffect(() => {
-    if (!flowInstance) {
+    const raf = requestAnimationFrame(() => {
+      fitView({ padding: fitPadding, duration: 220 });
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [fitView, fitViewVersion, laidOutGraph, fitPadding]);
+
+  // Refit when the container resizes (panel expand/collapse, orientation, etc.)
+  // so nodes stay visible on mobile even if React Flow initialised at a small size.
+  useEffect(() => {
+    const element = containerRef.current;
+    if (!element || typeof ResizeObserver === "undefined") {
       return;
     }
-
-    window.setTimeout(() => {
-      flowInstance.fitView({ padding: 0.18, duration: 220 });
-    }, 0);
-  }, [flowInstance, fitViewVersion, laidOutGraph]);
+    let raf = 0;
+    const observer = new ResizeObserver(() => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => fitView({ padding: fitPadding, duration: 0 }));
+    });
+    observer.observe(element);
+    return () => {
+      cancelAnimationFrame(raf);
+      observer.disconnect();
+    };
+  }, [fitView, fitPadding]);
 
   return (
-    <div className={`create-graph-canvas overflow-hidden ${compact ? "h-[420px]" : "h-full min-h-[560px]"}`}>
+    <div
+      ref={containerRef}
+      className={`create-graph-canvas overflow-hidden ${
+        compact
+          ? "h-[420px]"
+          : isMobile
+            ? "h-[70vh] min-h-[420px]"
+            : "h-full min-h-[480px]"
+      }`}
+    >
       <ReactFlow
         nodes={nodes}
         edges={edges}
         nodeTypes={nodeTypes}
         fitView
-        onInit={setFlowInstance}
+        fitViewOptions={{ padding: fitPadding }}
         onNodesChange={onNodesChange}
-        nodesDraggable
-        minZoom={0.25}
+        nodesDraggable={!isMobile}
+        nodesConnectable={false}
+        elementsSelectable
+        panOnDrag
+        zoomOnPinch
+        zoomOnScroll
+        panOnScroll={false}
+        minZoom={isMobile ? 0.1 : 0.25}
         maxZoom={1.8}
         onNodeClick={(_, node) => setSelectedNodeId(node.id)}
       >
         <Controls className="!border-factory-border !bg-factory-panel !text-stone-100" />
       </ReactFlow>
     </div>
+  );
+}
+
+export function GraphCanvas({ compact = false }: { compact?: boolean }) {
+  return (
+    <ReactFlowProvider>
+      <GraphCanvasInner compact={compact} />
+    </ReactFlowProvider>
   );
 }

@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import type { RecipeSource } from "../calculator-core/types";
 import {
+  allRecipeSources,
   CREATE_BASE_SOURCE_ID,
+  createBaseRecipeDefinitions,
   createBaseRecipeSource,
   getRecipeDefinitionsFromEnabledSources,
   normalizeEnabledRecipeSourceIds
@@ -62,5 +64,31 @@ describe("recipe sources", () => {
     expect(
       normalizeEnabledRecipeSourceIds([], [createBaseRecipeSource, addonSource])
     ).toEqual([CREATE_BASE_SOURCE_ID]);
+  });
+
+  it("exposes a single locked Create base at the top of the list", () => {
+    expect(allRecipeSources[0].id).toBe(CREATE_BASE_SOURCE_ID);
+    expect(allRecipeSources[0].displayName).toBe("Create");
+    expect(allRecipeSources[0].alwaysEnabled).toBe(true);
+  });
+
+  it("removes the duplicate standalone Create mod source", () => {
+    expect(allRecipeSources.some((source) => source.id === "create")).toBe(false);
+  });
+
+  it("folds the real Create mod recipes into the base", () => {
+    // The curated MVP base alone is tiny; merging the real Create export makes
+    // it large and keeps the MVP-only cobblestone scenario the solver relies on.
+    expect(createBaseRecipeDefinitions.length).toBeGreaterThan(100);
+    expect(
+      createBaseRecipeDefinitions.some(
+        (recipe) => recipe.id === "create:crushing/cobblestone"
+      )
+    ).toBe(true);
+    expect(
+      createBaseRecipeDefinitions.every(
+        (recipe) => recipe.sourceId === CREATE_BASE_SOURCE_ID
+      )
+    ).toBe(true);
   });
 });

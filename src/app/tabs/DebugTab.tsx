@@ -6,6 +6,7 @@ import {
   getRecipesByType
 } from "../../data/recipeSources";
 import { recipeExtractionSummary } from "../../data/generated/recipeExtractionSummary.generated";
+import { useTranslation } from "../../i18n";
 
 function JsonPanel({ title, value }: { title: string; value: unknown }) {
   return (
@@ -23,6 +24,7 @@ function JsonPanel({ title, value }: { title: string; value: unknown }) {
 export function DebugTab() {
   const result = useCalculatorStore((state) => state.result);
   const settings = useSettingsStore();
+  const t = useTranslation();
   const enabledSourceIds = new Set(settings.enabledRecipeSourceIds);
   const enabledSources = allRecipeSources.filter(
     (source) => source.alwaysEnabled || enabledSourceIds.has(source.id)
@@ -68,26 +70,26 @@ export function DebugTab() {
       );
 
   return (
-    <div className="industrial-scrollbar grid min-h-0 gap-4 overflow-auto p-4 xl:grid-cols-2">
-      <JsonPanel title="Recipe extraction summary" value={recipeExtractionSummary} />
-      <JsonPanel title="Loaded recipe sources" value={sourceMetadata} />
-      <JsonPanel title="Enabled recipe sources" value={enabledSources.map((source) => source.id)} />
-      <JsonPanel title="Disabled recipe sources" value={disabledSources.map((source) => source.id)} />
-      <JsonPanel title="Unsupported extracted recipes" value={unsupportedRecipes} />
-      <JsonPanel title="Unsupported recipe types" value={unsupportedRecipeTypes} />
-      <JsonPanel title="Recipes by type" value={getRecipesByType()} />
-      <JsonPanel title="Recipes by source" value={getRecipesBySource()} />
-      <JsonPanel title="Raw normalized recipe JSON" value={rawRecipes} />
-      <JsonPanel title="Raw source metadata" value={allRecipeSources} />
-      <JsonPanel title="Raw selected recipe JSON" value={result.selectedRecipe ?? null} />
-      <JsonPanel title="Solver output JSON" value={result} />
-      <JsonPanel title="Graph nodes JSON" value={result.graph.nodes} />
-      <JsonPanel title="Graph edges JSON" value={result.graph.edges} />
-      <JsonPanel title="Formula breakdown" value={result.formulaBreakdown} />
-      <JsonPanel title="Warnings" value={result.warnings} />
-      <JsonPanel title="Missing data" value={result.missingData} />
-      <JsonPanel title="Solver unsupported recipe types" value={result.unsupportedRecipeTypes} />
-      <JsonPanel title="Settings snapshot" value={settings} />
+    <div className="industrial-scrollbar grid min-h-0 gap-4 p-4 xl:h-full xl:grid-cols-2 xl:overflow-auto">
+      <JsonPanel title={t("debug.recipeExtractionSummary")} value={recipeExtractionSummary} />
+      <JsonPanel title={t("debug.loadedSources")} value={sourceMetadata} />
+      <JsonPanel title={t("debug.enabledSources")} value={enabledSources.map((source) => source.id)} />
+      <JsonPanel title={t("debug.disabledSources")} value={disabledSources.map((source) => source.id)} />
+      <JsonPanel title={t("debug.unsupportedRecipes")} value={unsupportedRecipes} />
+      <JsonPanel title={t("debug.unsupportedRecipeTypes")} value={unsupportedRecipeTypes} />
+      <JsonPanel title={t("debug.recipesByType")} value={getRecipesByType()} />
+      <JsonPanel title={t("debug.recipesBySource")} value={getRecipesBySource()} />
+      <JsonPanel title={t("debug.rawNormalizedRecipes")} value={rawRecipes} />
+      <JsonPanel title={t("debug.rawSourceMetadata")} value={allRecipeSources} />
+      <JsonPanel title={t("debug.rawSelectedRecipe")} value={result.selectedRecipe ?? null} />
+      <JsonPanel title={t("debug.solverOutput")} value={result} />
+      <JsonPanel title={t("debug.graphNodes")} value={result.graph.nodes} />
+      <JsonPanel title={t("debug.graphEdges")} value={result.graph.edges} />
+      <JsonPanel title={t("debug.formulaBreakdown")} value={result.formulaBreakdown} />
+      <JsonPanel title={t("debug.warnings")} value={result.warnings} />
+      <JsonPanel title={t("debug.missingData")} value={result.missingData} />
+      <JsonPanel title={t("debug.solverUnsupportedTypes")} value={result.unsupportedRecipeTypes} />
+      <JsonPanel title={t("debug.settingsSnapshot")} value={settings} />
     </div>
   );
 }

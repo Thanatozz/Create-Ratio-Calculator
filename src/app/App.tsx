@@ -49,8 +49,11 @@ export function App() {
   const calculate = useCalculatorStore((state) => state.calculate);
   const activeTab = useUiStore((state) => state.activeTab);
   const theme = useSettingsStore((state) => state.theme);
+  const materialTheme = useSettingsStore((state) => state.materialTheme);
   const showFactorySidebar = activeTab === "factory";
-  const pageTheme = pageThemes[activeTab];
+  const automaticPageTheme = pageThemes[activeTab];
+  const pageTheme =
+    materialTheme === "automatic" ? automaticPageTheme : materialTheme;
 
   useEffect(() => {
     calculate();
@@ -80,22 +83,22 @@ export function App() {
   }, [theme]);
 
   const mainContent = (
-    <section className="h-full min-h-0">
+    <section className="min-h-0 xl:h-full">
       <ActiveTab />
     </section>
   );
 
   return (
     <div
-      className="create-app-shell flex h-screen min-h-screen flex-col overflow-hidden text-stone-100"
+      className="create-app-shell flex min-h-screen flex-col text-stone-100 xl:h-screen xl:overflow-hidden"
       data-page-theme={pageTheme}
     >
       <TopNavigation />
       <main
         className={
           showFactorySidebar
-            ? "grid min-h-0 flex-1 grid-cols-1 xl:grid-cols-[260px_minmax(0,1fr)]"
-            : "grid min-h-0 flex-1 grid-cols-1"
+            ? "flex min-h-0 flex-1 flex-col xl:grid xl:grid-cols-[260px_minmax(0,1fr)]"
+            : "flex min-h-0 flex-1 flex-col"
         }
       >
         {showFactorySidebar ? <ControlSidebar /> : null}

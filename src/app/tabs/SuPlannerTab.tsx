@@ -4,6 +4,8 @@ import { calculateGeneratorCount } from "../../calculator-core/su/generators";
 import type { GeneratorPlan } from "../../calculator-core/types";
 import { NumberField } from "../../components/controls/NumberField";
 import { SelectField } from "../../components/controls/SelectField";
+import { CollapsiblePanel } from "../../components/ui/CollapsiblePanel";
+import { CardField, MobileCard, MobileCardList } from "../../components/ui/MobileCard";
 import { formatNumber, formatSu } from "../../components/ui/format";
 import {
   ACTIVE_STEAM_ENGINE_ID,
@@ -53,7 +55,8 @@ function categoryLabel(
 
 function buildOptions(
   su: ReturnType<typeof useCalculatorStore.getState>["result"]["su"],
-  visibleGenerators: ReturnType<typeof getVisibleSuGenerators>
+  visibleGenerators: ReturnType<typeof getVisibleSuGenerators>,
+  t: ReturnType<typeof useTranslation>
 ): GeneratorOption[] {
   return su.generatorPlans.map((plan) => {
     const definition = visibleGenerators.find(
@@ -71,7 +74,7 @@ function buildOptions(
       recommendedCount,
       recommendedTotalSu: recommendedCount * plan.suCapacityEach,
       level: definition?.level ?? "-",
-      notes: definition?.notes ?? (definition?.configurable ? "Configurable" : "")
+      notes: definition?.notes ?? (definition?.configurable ? t("su.configurable") : "")
     };
   });
 }
@@ -171,7 +174,7 @@ export function SuPlannerTab() {
   );
   const t = useTranslation();
   const visibleGenerators = getVisibleSuGenerators(showCreativeGenerator);
-  const options = buildOptions(su, visibleGenerators);
+  const options = buildOptions(su, visibleGenerators, t);
   const [targetSu, setTargetSu] = useState(su.recommendedSu);
   const [calculatorGeneratorId, setCalculatorGeneratorId] = useState(
     preferredSuGeneratorId
@@ -198,7 +201,7 @@ export function SuPlannerTab() {
     selectedCalculatorGenerator.suCapacity
   );
   const calculatorGeneratedSu =
-    calculatorRecommendedCount * selectedCalculatorGenerator.suCapacity;
+    calculatorMinimumCount * selectedCalculatorGenerator.suCapacity;
   const calculatorSurplus = calculatorGeneratedSu - targetSu;
   const suggestedPlans = buildSuggestedPlans(options, su.recommendedSu);
   const normalOptions = options.filter(
@@ -220,7 +223,7 @@ export function SuPlannerTab() {
   }, [calculatorGeneratorId, selectedCalculatorGenerator.id]);
 
   return (
-    <div className="create-page industrial-scrollbar h-full min-h-0 overflow-auto p-3">
+    <div className="create-page industrial-scrollbar min-h-0 p-3 xl:h-full xl:overflow-auto">
       {/* [<section className="create-panel mx-auto mb-3 w-full max-w-6xl p-3">
         <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-factory-brass">
           {t("su.factorySummary")}
@@ -264,11 +267,12 @@ export function SuPlannerTab() {
         </div>
       </section>] */}
 
-      <section className="mx-auto mb-3 grid w-full max-w-6xl gap-2 lg:grid-cols-[1.2fr_0.8fr]">
-        <div className="create-panel p-3">
-          <div className="mb-3 text-xs font-semibold uppercase tracking-wide text-factory-brass">
-            {t("su.countCalculator")}
-          </div>
+      <CollapsiblePanel
+        title={t("su.countCalculator")}
+        icon={<Zap size={14} />}
+        className="mx-auto mb-3 w-full max-w-6xl"
+        bodyClassName="p-3"
+      >
           <div className="grid gap-3 md:grid-cols-2">
             <NumberField
               label={t("su.targetAmount")}
@@ -287,18 +291,18 @@ export function SuPlannerTab() {
               onChange={setCalculatorGeneratorId}
             />
           </div>
-          <div className="mt-3 grid gap-2 md:grid-cols-4">
+          <div className="mt-3 grid gap-2 md:grid-cols-3">
             <CompactMetric
               label={t("su.minimumCount")}
               value={`${calculatorMinimumCount}x`}
               detail={selectedCalculatorGenerator.name}
             />
-            <CompactMetric
+            {/* <CompactMetric
               label={t("su.recommendedCount")}
               value={`${calculatorRecommendedCount}x`}
               detail={t("factory.margin", { value: Math.round(su.margin * 100) })}
               tone="text-factory-brass"
-            />
+            /> */}
             <CompactMetric
               label={t("su.totalGenerated")}
               value={formatSu(calculatorGeneratedSu)}
@@ -310,30 +314,53 @@ export function SuPlannerTab() {
               tone={calculatorSurplus >= 0 ? "text-factory-green" : "text-factory-danger"}
             />
           </div>
-        </div>
-        {/* <div className="create-panel p-3">
-          <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-factory-brass">
-            {t("su.thresholdRecommendation")}
-          </div>
-          <div className="text-sm text-stone-300">
-            <strong className="text-factory-brass">
-              {recommendedOption
-                ? `${recommendedOption.recommendedCount}x ${recommendedLabel}`
-                : t("common.none")}
-            </strong>
-          </div>
-          <div className="mt-1 text-xs text-stone-500">
-            {t("su.moveUpNote")}
-          </div>
-        </div> */}
-      </section>
+      </CollapsiblePanel>
 
-      <section className="create-panel mx-auto w-full max-w-6xl">
-        <div className="flex items-center gap-2 border-b border-factory-border px-3 py-2 text-xs font-semibold uppercase tracking-wide text-factory-brass">
-          <Gauge size={14} />
-          {t("su.generatorOptions")}
-        </div>
-        <div className="overflow-auto">
+      <CollapsiblePanel
+        title={t("su.generatorOptions")}
+        icon={<Gauge size={14} />}
+        className="mx-auto w-full max-w-6xl"
+        bodyClassName="p-0"
+      >
+        <MobileCardList className="p-3">
+          {normalOptions.map((option) => (
+            <MobileCard key={option.plan.id}>
+              <div className="font-semibold text-stone-100">
+                {option.plan.generatorName}
+              </div>
+              <CardField
+                label={t("su.level")}
+                value={
+                  option.plan.category === "creative"
+                    ? t("su.creativeTesting")
+                    : option.level
+                }
+              />
+              <CardField
+                label={t("su.suEach")}
+                value={formatSu(option.plan.suCapacityEach)}
+                valueClassName="text-factory-su"
+              />
+              <CardField
+                label={t("su.minimumCount")}
+                value={formatNumber(option.minimumCount, 0)}
+              />
+              <CardField
+                label={t("su.recommendedCount")}
+                value={formatNumber(option.recommendedCount, 0)}
+                valueClassName="text-factory-brass"
+              />
+              <CardField
+                label={t("su.category")}
+                value={categoryLabel(option.plan.category, t)}
+              />
+              {option.notes ? (
+                <CardField label={t("resources.notes")} value={option.notes} />
+              ) : null}
+            </MobileCard>
+          ))}
+        </MobileCardList>
+        <div className="industrial-scrollbar hidden overflow-x-auto md:block">
           <table className="create-technical-table w-full min-w-[860px] text-left text-sm">
             <thead className="text-[11px] uppercase tracking-wide text-stone-500">
               <tr>
@@ -378,15 +405,37 @@ export function SuPlannerTab() {
             </tbody>
           </table>
         </div>
-      </section>
+      </CollapsiblePanel>
 
       {showCreativeGenerator && creativeOptions.length > 0 ? (
-        <section className="create-panel mx-auto mt-3 w-full max-w-6xl">
-          <div className="flex items-center gap-2 border-b border-factory-border px-3 py-2 text-xs font-semibold uppercase tracking-wide text-factory-warning">
-            <BatteryCharging size={14} />
-            {t("su.creativeTesting")}
-          </div>
-          <div className="overflow-auto">
+        <CollapsiblePanel
+          title={t("su.creativeTesting")}
+          icon={<BatteryCharging size={14} className="text-factory-warning" />}
+          className="mx-auto mt-3 w-full max-w-6xl"
+          bodyClassName="p-0"
+        >
+          <MobileCardList className="p-3">
+            {creativeOptions.map((option) => (
+              <MobileCard key={option.plan.id}>
+                <div className="font-semibold text-stone-100">
+                  {option.plan.generatorName}
+                </div>
+                <CardField
+                  label={t("su.suEach")}
+                  value={formatSu(option.plan.suCapacityEach)}
+                  valueClassName="text-factory-su"
+                />
+                <CardField
+                  label={t("su.category")}
+                  value={categoryLabel(option.plan.category, t)}
+                />
+                {option.notes ? (
+                  <CardField label={t("resources.notes")} value={option.notes} />
+                ) : null}
+              </MobileCard>
+            ))}
+          </MobileCardList>
+          <div className="industrial-scrollbar hidden overflow-x-auto md:block">
             <table className="create-technical-table w-full min-w-[720px] text-left text-sm">
               <thead className="text-[11px] uppercase tracking-wide text-stone-500">
                 <tr>
@@ -423,7 +472,7 @@ export function SuPlannerTab() {
               </tbody>
             </table>
           </div>
-        </section>
+        </CollapsiblePanel>
       ) : null}
 
       {/* <section className="mx-auto mt-3 grid w-full max-w-6xl gap-2 lg:grid-cols-4">

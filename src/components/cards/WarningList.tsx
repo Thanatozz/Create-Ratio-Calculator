@@ -1,15 +1,18 @@
 import { AlertTriangle, Info, OctagonAlert } from "lucide-react";
 import type { CalculatorWarning } from "../../calculator-core/types";
+import { useTranslation } from "../../i18n";
 
 interface WarningListProps {
   warnings: CalculatorWarning[];
 }
 
 export function WarningList({ warnings }: WarningListProps) {
+  const t = useTranslation();
+
   if (warnings.length === 0) {
     return (
       <div className="rounded-md border border-factory-border bg-factory-panel p-3 text-sm text-stone-400">
-        No warnings for the current plan.
+        {t("warnings.empty")}
       </div>
     );
   }

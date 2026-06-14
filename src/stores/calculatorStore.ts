@@ -19,9 +19,17 @@ import type {
 } from "../calculator-core/types";
 import { recipes } from "../data/create-1.21.1/recipes";
 import { getVisibleSuGenerators } from "../data/create-1.21.1/suGenerators";
-import { getRecipeDefinitionsFromEnabledSources } from "../data/recipeSources";
+import {
+  getActiveRegistry,
+  invalidateRegistryCache
+} from "../data/recipeRegistry";
 import { transportModes } from "../data/create-1.21.1/transport";
 import { useSettingsStore } from "./settingsStore";
+
+export interface RecipeSourceStatus {
+  kind: "success" | "error";
+  messageKey: string;
+}
 
 function defaultScenarioRate(params: {
   rpm: RpmPreset;
@@ -80,9 +88,7 @@ interface CalculationSnapshot {
 
 function calculate(snapshot: CalculationSnapshot): SolverOutput {
   const settings = useSettingsStore.getState();
-  const activeRecipes = getRecipeDefinitionsFromEnabledSources(
-    settings.enabledRecipeSourceIds
-  );
+  const activeRecipes = getActiveRegistry(settings.enabledRecipeSourceIds).recipes;
   const activeSuGenerators = getVisibleSuGenerators(
     settings.showCreativeGenerator
   );
@@ -137,6 +143,7 @@ interface CalculatorState extends CalculationSnapshot {
   recipePreference: string;
   selectedNodeId?: string;
   result: SolverOutput;
+  recipeSourceStatus?: RecipeSourceStatus;
   setCalculationMode: (value: CalculationMode) => void;
   setTargetItemId: (value: string) => void;
   setTargetRate: (value: number) => void;
@@ -151,6 +158,8 @@ interface CalculatorState extends CalculationSnapshot {
   setRecipePreference: (value: string) => void;
   setSelectedNodeId: (value: string | undefined) => void;
   calculate: () => void;
+  applyRecipeSources: () => void;
+  clearRecipeSourceStatus: () => void;
   loadExampleScenario: () => void;
   loadFixedMachineExample: () => void;
 }
@@ -248,9 +257,9 @@ export const useCalculatorStore = create<CalculatorState>((set, get) => ({
     }),
   setFixedMachineId: (fixedMachineId) =>
     set((state) => {
-      const activeRecipes = getRecipeDefinitionsFromEnabledSources(
+      const activeRecipes = getActiveRegistry(
         useSettingsStore.getState().enabledRecipeSourceIds
-      );
+      ).recipes;
       const fixedRecipeId = firstRecipeForMachine(fixedMachineId, activeRecipes);
       const next = { ...state, fixedMachineId, fixedRecipeId };
       return {
@@ -261,9 +270,9 @@ export const useCalculatorStore = create<CalculatorState>((set, get) => ({
     }),
   setFixedRecipeId: (fixedRecipeId) =>
     set((state) => {
-      const activeRecipes = getRecipeDefinitionsFromEnabledSources(
+      const activeRecipes = getActiveRegistry(
         useSettingsStore.getState().enabledRecipeSourceIds
-      );
+      ).recipes;
       const next = {
         ...state,
         fixedRecipeId: validRecipeForMachine(
@@ -305,6 +314,61 @@ export const useCalculatorStore = create<CalculatorState>((set, get) => ({
     const state = get();
     set({ result: calculate(state) });
   },
+  applyRecipeSources: () =>
+    set((state) => {
+      try {
+        const settings = useSettingsStore.getState();
+        // Force a rebuild of the active recipe registry from the current
+        // enabled/disabled addon selection.
+        invalidateRegistryCache();
+        const registry = getActiveRegistry(settings.enabledRecipeSourceIds);
+
+        // Validate the selected target item; reset to a safe default if it can
+        // no longer be produced by the active sources.
+        let targetItemId = state.targetItemId;
+        if (!registry.targetItems.some((entry) => entry.itemId === targetItemId)) {
+          targetItemId =
+            registry.targetItems.find((entry) => entry.fromCreateBase)?.itemId ??
+            registry.targetItems[0]?.itemId ??
+            targetItemId;
+        }
+
+        // Validate the fixed machine recipe selection.
+        let fixedRecipeId = state.fixedRecipeId;
+        const recipeStillValid = registry.recipes.some(
+          (recipe) =>
+            recipe.id === fixedRecipeId &&
+            recipe.machineId === state.fixedMachineId
+        );
+        if (!recipeStillValid) {
+          fixedRecipeId =
+            firstRecipeForMachine(state.fixedMachineId, registry.recipes) ||
+            fixedRecipeId;
+        }
+
+        const next = { ...state, targetItemId, fixedRecipeId };
+        settings.setLastRecipeSourcesAppliedAt(Date.now());
+
+        return {
+          targetItemId,
+          fixedRecipeId,
+          result: calculate(next),
+          recipeSourceStatus: {
+            kind: "success" as const,
+            messageKey: "settings.addonsApplied"
+          }
+        };
+      } catch (error) {
+        console.error("Failed to apply recipe sources", error);
+        return {
+          recipeSourceStatus: {
+            kind: "error" as const,
+            messageKey: "settings.addonsApplyError"
+          }
+        };
+      }
+    }),
+  clearRecipeSourceStatus: () => set({ recipeSourceStatus: undefined }),
   loadExampleScenario: () => {
     const snapshot = buildExampleSnapshot();
     set({

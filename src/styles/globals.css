@@ -186,6 +186,9 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  /* Prevent accidental page-level horizontal scroll on mobile. Wide tables use
+     their own .overflow-x-auto containers, so this only clips stray overflow. */
+  overflow-x: hidden;
   background:
     linear-gradient(var(--app-grid-major) 1px, transparent 1px),
     linear-gradient(90deg, var(--app-grid-major) 1px, transparent 1px),
@@ -193,6 +196,34 @@ body {
     linear-gradient(90deg, var(--app-grid-minor) 1px, transparent 1px),
     var(--app-bg);
   background-size: 96px 96px, 96px 96px, 16px 16px, 16px 16px, auto;
+}
+
+/* Touch / scroll safety on phones and small tablets. */
+@media (max-width: 767px) {
+  /* 16px minimum avoids iOS auto-zoom when focusing form fields. */
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+
+  /* Comfortable tap targets for the themed controls. */
+  .create-control,
+  .create-primary-button {
+    min-height: 44px;
+  }
+
+  /* Larger, touch-friendly React Flow control buttons. */
+  .create-graph-canvas .react-flow__controls-button {
+    width: 38px !important;
+    height: 38px !important;
+  }
+}
+
+/* Subtle right-edge fade hinting that a container scrolls horizontally. */
+.create-scroll-fade {
+  -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 24px), transparent);
+  mask-image: linear-gradient(to right, #000 calc(100% - 24px), transparent);
 }
 
 :root[data-theme="light"] .text-stone-100,

@@ -85,6 +85,18 @@ export async function extractRecipeSources(params: {
     warnings
   };
 
+  // Guard against wiping the committed generated data when the local
+  // "mods for recipes" folder is absent (e.g. CI / GitHub Pages builds).
+  // Without this, `prebuild` would overwrite the bundled addon sources with an
+  // empty array and addons would silently disappear from the deployed site.
+  if (sources.length === 0) {
+    warnings.push(
+      `No recipe sources found in ${summary.modsFolder}; keeping existing generated data.`
+    );
+    console.warn(warnings[warnings.length - 1]);
+    return { sources, summary };
+  }
+
   await writeGeneratedData({
     projectRoot: params.projectRoot,
     sources,

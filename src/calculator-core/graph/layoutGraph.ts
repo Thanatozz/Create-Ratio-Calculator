@@ -9,19 +9,24 @@ const elk = new ELK();
 
 export async function layoutGraph(
   graph: ProductionGraph,
-  direction: "RIGHT" | "DOWN" = "RIGHT"
+  direction: "RIGHT" | "DOWN" = "RIGHT",
+  options: { compact?: boolean } = {}
 ): Promise<ProductionGraph> {
+  const compact = options.compact ?? false;
+  const machineWidth = compact ? 208 : 288;
+  const itemWidth = compact ? 168 : 240;
+
   const layout = await elk.layout({
     id: "root",
     layoutOptions: {
       "elk.algorithm": "layered",
       "elk.direction": direction,
-      "elk.spacing.nodeNode": "56",
-      "elk.layered.spacing.nodeNodeBetweenLayers": "96"
+      "elk.spacing.nodeNode": compact ? "36" : "56",
+      "elk.layered.spacing.nodeNodeBetweenLayers": compact ? "60" : "96"
     },
     children: graph.nodes.map((node) => ({
       id: node.id,
-      width: node.type === "machine" ? 288 : 240,
+      width: node.type === "machine" ? machineWidth : itemWidth,
       height: node.type === "warning" ? 120 : node.type === "machine" ? 142 : 112
     })),
     edges: graph.edges.map((edge) => ({

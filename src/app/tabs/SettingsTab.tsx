@@ -1,15 +1,30 @@
-import { Database, Palette, RotateCcw, SlidersHorizontal, Zap } from "lucide-react";
-import type { ReactNode } from "react";
+import {
+  Check,
+  Database,
+  Palette,
+  RotateCcw,
+  Search,
+  SlidersHorizontal,
+  TerminalSquare,
+  TriangleAlert,
+  Zap
+} from "lucide-react";
+import { useState, type ReactNode } from "react";
 import type { CalculatorMode, RpmPreset, TransportMode } from "../../calculator-core/types";
 import { NumberField } from "../../components/controls/NumberField";
 import { SelectField } from "../../components/controls/SelectField";
+import { RecipeSourceCard } from "../../components/controls/RecipeSourceCard";
+import { CollapsiblePanel } from "../../components/ui/CollapsiblePanel";
+import { cleanSourceDisplayName } from "../../components/ui/displayName";
 import { machines } from "../../data/create-1.21.1/machines";
 import { getVisibleSuGenerators } from "../../data/create-1.21.1/suGenerators";
 import { transportModes } from "../../data/create-1.21.1/transport";
 import { allRecipeSources, CREATE_BASE_SOURCE_ID } from "../../data/recipeSources";
+import { getActiveRegistry, getSourceDisplayName } from "../../data/recipeRegistry";
+import { useIsMobile } from "../../hooks/useIsMobile";
 import { useTranslation, type Language, type ThemeMode } from "../../i18n";
 import { useCalculatorStore } from "../../stores/calculatorStore";
-import { useSettingsStore } from "../../stores/settingsStore";
+import { useSettingsStore, type MaterialTheme } from "../../stores/settingsStore";
 import { useUiStore, type UiDensity } from "../../stores/uiStore";
 
 const rpmOptions: RpmPreset[] = [16, 32, 64, 128, 256];
@@ -18,39 +33,45 @@ function SettingsSection({
   title,
   icon,
   children,
-  defaultOpen = true
+  defaultOpen = true,
+  importantOnMobile = false,
+  bodyClassName
 }: {
   title: string;
   icon?: ReactNode;
   children: ReactNode;
   defaultOpen?: boolean;
+  /** On mobile, only sections flagged important start expanded. */
+  importantOnMobile?: boolean;
+  bodyClassName?: string;
 }) {
+  const isMobile = useIsMobile();
+  const open = isMobile ? importantOnMobile : defaultOpen;
   return (
-    <details
-      className="create-panel"
-      open={defaultOpen}
+    <CollapsiblePanel
+      title={title}
+      icon={icon}
+      defaultOpen={open}
+      bodyClassName={bodyClassName}
     >
-      <summary className="flex cursor-pointer items-center gap-2 border-b border-factory-border px-4 py-3 text-sm font-semibold uppercase tracking-wide text-factory-brass">
-        {icon}
-        {title}
-      </summary>
-      <div className="p-4">{children}</div>
-    </details>
+      {children}
+    </CollapsiblePanel>
   );
 }
 
-function formatSourceStats(
-  source: (typeof allRecipeSources)[number],
-  t: ReturnType<typeof useTranslation>
-): string {
-  const supported = source.supportedRecipeCount ?? source.recipeCount;
-  const unsupported = source.unsupportedRecipeCount ?? 0;
-  const base = t("settings.recipesSupported", {
-    recipes: source.recipeCount,
-    supported
-  });
-
-  return `${base}${unsupported > 0 ? `, ${t("settings.recipesUnsupported", { count: unsupported })}` : ""}`;
+function DiagnosticRow({
+  label,
+  value
+}: {
+  label: string;
+  value: string | number;
+}) {
+  return (
+    <div className="flex justify-between gap-3 border-b border-factory-border/50 py-0.5">
+      <span className="truncate text-stone-500">{label}</span>
+      <span className="shrink-0 font-semibold text-stone-200">{value}</span>
+    </div>
+  );
 }
 
 export function SettingsTab() {
@@ -59,8 +80,22 @@ export function SettingsTab() {
   const setUiDensity = useUiStore((state) => state.setUiDensity);
   const setActiveTab = useUiStore((state) => state.setActiveTab);
   const recalculate = useCalculatorStore((state) => state.calculate);
+  const applyRecipeSources = useCalculatorStore((state) => state.applyRecipeSources);
+  const recipeSourceStatus = useCalculatorStore((state) => state.recipeSourceStatus);
   const t = useTranslation();
   const visibleSuGenerators = getVisibleSuGenerators(settings.showCreativeGenerator);
+  const registryStats = getActiveRegistry(settings.enabledRecipeSourceIds).stats;
+  const [sourceQuery, setSourceQuery] = useState("");
+  const [compactSources, setCompactSources] = useState(false);
+
+  const normalizedQuery = sourceQuery.trim().toLowerCase();
+  const filteredSources = normalizedQuery
+    ? allRecipeSources.filter((source) =>
+        cleanSourceDisplayName(source.displayName)
+          .toLowerCase()
+          .includes(normalizedQuery)
+      )
+    : allRecipeSources;
 
   function updateAndRecalculate(update: () => void) {
     update();
@@ -68,7 +103,7 @@ export function SettingsTab() {
   }
 
   return (
-    <div className="create-page industrial-scrollbar h-full min-h-0 overflow-auto p-4 pb-24">
+    <div className="create-page industrial-scrollbar min-h-0 p-4 pb-24 xl:h-full xl:overflow-auto">
       <div className="mx-auto mb-4 flex w-full max-w-6xl items-center justify-between gap-3">
         <div>
           <h2 className="text-sm font-semibold uppercase tracking-wide text-factory-brass">
@@ -89,7 +124,7 @@ export function SettingsTab() {
       </div>
 
       <div className="mx-auto grid w-full max-w-6xl gap-4">
-        <SettingsSection title={t("settings.general")} icon={<SlidersHorizontal size={16} />}>
+        <SettingsSection title={t("settings.general")} icon={<SlidersHorizontal size={16} />} importantOnMobile>
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             <label className="grid gap-1.5 text-sm text-stone-300">
               <span className="text-xs uppercase tracking-wide text-stone-500">
@@ -123,7 +158,7 @@ export function SettingsTab() {
           </div>
         </SettingsSection>
 
-        <SettingsSection title={t("settings.defaults")} icon={<SlidersHorizontal size={16} />}>
+        <SettingsSection title={t("settings.defaults")} icon={<SlidersHorizontal size={16} />} importantOnMobile>
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             <SelectField<RpmPreset>
               label={t("settings.defaultRpm")}
@@ -184,18 +219,18 @@ export function SettingsTab() {
                 updateAndRecalculate(() => settings.setDefaultEfficiency(value))
               }
             />
-            <NumberField
+            {/* <NumberField
               label={t("settings.suMargin")}
               value={settings.suMargin}
               min={0}
               max={1}
               step={0.01}
               onChange={(value) => updateAndRecalculate(() => settings.setSuMargin(value))}
-            />
+            /> */}
           </div>
         </SettingsSection>
 
-        <SettingsSection title={t("settings.appearanceLanguage")} icon={<Palette size={16} />}>
+        <SettingsSection title={t("settings.appearanceLanguage")} icon={<Palette size={16} />} importantOnMobile>
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             <SelectField<ThemeMode>
               label={t("settings.theme")}
@@ -217,77 +252,204 @@ export function SettingsTab() {
               ]}
               onChange={settings.setLanguage}
             />
+            <SelectField<MaterialTheme>
+              label={t("settings.material")}
+              value={settings.materialTheme}
+              options={[
+                { value: "automatic", label: t("material.automatic") },
+                { value: "andesite", label: t("material.andesite") },
+                { value: "brass", label: t("material.brass") },
+                { value: "copper", label: t("material.copper") },
+                { value: "train", label: t("material.train") }
+              ]}
+              onChange={settings.setMaterialTheme}
+            />
           </div>
         </SettingsSection>
 
         <SettingsSection title={t("settings.recipeSources")} icon={<Database size={16} />}>
-          <div className="mb-3 flex flex-wrap gap-2">
-            <button
-              className="rounded-md border border-factory-border bg-factory-panel2 px-3 py-2 text-xs text-stone-200 hover:border-factory-brass"
-              type="button"
-              onClick={() => updateAndRecalculate(settings.enableAllRecipeSources)}
-            >
-              {t("settings.enableAll")}
-            </button>
-            <button
-              className="rounded-md border border-factory-border bg-factory-panel2 px-3 py-2 text-xs text-stone-200 hover:border-factory-brass"
-              type="button"
-              onClick={() => updateAndRecalculate(settings.disableAllAddonRecipeSources)}
-            >
-              {t("settings.disableAllAddons")}
-            </button>
-            <button
-              className="rounded-md border border-factory-border bg-factory-panel2 px-3 py-2 text-xs text-stone-200 hover:border-factory-brass"
-              type="button"
-              onClick={() => updateAndRecalculate(settings.resetRecipeSources)}
-            >
-              {t("settings.resetRecipeSources")}
-            </button>
+          <p className="mb-3 text-xs text-stone-500">{t("settings.applyHint")}</p>
+
+          <div className="sticky top-0 z-20 -mx-4 mb-3 border-b-2 border-factory-border bg-factory-panel2 px-4 pb-3 pt-3 shadow-lg">
+            <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
+              <button
+                className="create-primary-button flex h-11 items-center justify-center gap-2 px-3 text-sm font-semibold"
+                type="button"
+                onClick={applyRecipeSources}
+              >
+                <Check size={16} />
+                {t("settings.applyAddons")}
+              </button>
+              <div className="flex flex-wrap gap-2">
+                <button
+                  className="rounded-md border border-factory-border bg-factory-panel2 px-3 py-2 text-xs text-stone-200 hover:border-factory-brass"
+                  type="button"
+                  onClick={settings.enableAllRecipeSources}
+                >
+                  {t("settings.enableAll")}
+                </button>
+                <button
+                  className="rounded-md border border-factory-border bg-factory-panel2 px-3 py-2 text-xs text-stone-200 hover:border-factory-brass"
+                  type="button"
+                  onClick={settings.disableAllAddonRecipeSources}
+                >
+                  {t("settings.disableAllAddons")}
+                </button>
+                <button
+                  className="rounded-md border border-factory-border bg-factory-panel2 px-3 py-2 text-xs text-stone-200 hover:border-factory-brass"
+                  type="button"
+                  onClick={settings.resetRecipeSources}
+                >
+                  {t("settings.resetRecipeSources")}
+                </button>
+              </div>
+            </div>
+
+            <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:items-center">
+              <div className="relative flex-1">
+                <Search
+                  size={14}
+                  className="pointer-events-none absolute left-2 top-1/2 -translate-y-1/2 text-stone-500"
+                />
+                <input
+                  type="text"
+                  className="h-10 w-full rounded-md border border-factory-border bg-factory-panel2 pl-7 pr-2 text-sm text-stone-100 outline-none focus:border-factory-brass"
+                  placeholder={t("settings.searchSources")}
+                  value={sourceQuery}
+                  onChange={(event) => setSourceQuery(event.target.value)}
+                />
+              </div>
+              <label className="flex items-center gap-2 text-xs text-stone-400">
+                <input
+                  type="checkbox"
+                  className="h-4 w-4"
+                  checked={compactSources}
+                  onChange={(event) => setCompactSources(event.target.checked)}
+                />
+                {t("settings.compact")}
+              </label>
+            </div>
+
+            {recipeSourceStatus ? (
+              <div
+                className={`mt-2 flex items-center gap-2 rounded-md border px-3 py-2 text-xs ${
+                  recipeSourceStatus.kind === "success"
+                    ? "border-factory-green/50 text-factory-green"
+                    : "border-factory-danger/50 text-factory-danger"
+                }`}
+                role="status"
+              >
+                {recipeSourceStatus.kind === "success" ? (
+                  <Check size={14} />
+                ) : (
+                  <TriangleAlert size={14} />
+                )}
+                {t(recipeSourceStatus.messageKey)}
+              </div>
+            ) : null}
           </div>
 
           <div className="grid gap-2">
-            {allRecipeSources.map((source) => {
+            {filteredSources.map((source) => {
               const locked = source.alwaysEnabled || source.id === CREATE_BASE_SOURCE_ID;
               const checked =
                 locked || settings.enabledRecipeSourceIds.includes(source.id);
 
               return (
-                <label
+                <RecipeSourceCard
                   key={source.id}
-                  className="grid gap-1 rounded-md border border-factory-border bg-factory-panel2 p-3 text-sm text-stone-300 md:grid-cols-[auto_1fr_auto]"
-                >
-                  <input
-                    type="checkbox"
-                    checked={checked}
-                    disabled={locked}
-                    onChange={(event) =>
-                      updateAndRecalculate(() =>
-                        settings.setRecipeSourceEnabled(
-                          source.id,
-                          event.target.checked
-                        )
-                      )
-                    }
-                  />
-                  <span>
-                    <span className="ml-3 font-semibold text-stone-100">
-                      {source.displayName}
-                    </span>
-                    {locked ? (
-                      <span className="ml-2 text-xs text-factory-brass">{t("common.locked")}</span>
-                    ) : null}
-                    <span className="ml-3 block text-xs text-stone-500"> 
-                      {formatSourceStats(source, t)}
-                      {/* {source.version ? ` - ${source.version}` : ""}
-                      {source.fileName ? ` - ${source.fileName}` : ""} */}
-                    </span>
-                  </span>
-                  {/* <span className="text-xs uppercase tracking-wide text-stone-500">
-                    {source.loader ?? "unknown"}
-                  </span> */}
-                </label>
+                  source={source}
+                  checked={checked}
+                  locked={locked}
+                  compact={compactSources}
+                  onChange={(value) =>
+                    settings.setRecipeSourceEnabled(source.id, value)
+                  }
+                />
               );
             })}
+            {filteredSources.length === 0 ? (
+              <p className="px-1 py-3 text-center text-xs text-stone-500">
+                {t("settings.noSourcesFound")}
+              </p>
+            ) : null}
+          </div>
+        </SettingsSection>
+
+        <SettingsSection
+          title={t("settings.advanced")}
+          icon={<TerminalSquare size={16} />}
+          defaultOpen={false}
+        >
+          <div className="grid gap-3 text-sm text-stone-300">
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                className="h-4 w-4"
+                checked={settings.developerMode}
+                onChange={(event) => settings.setDeveloperMode(event.target.checked)}
+              />
+              {t("settings.developerMode")}
+            </label>
+
+            {settings.developerMode ? (
+              <>
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    className="h-4 w-4"
+                    checked={settings.showUnsupportedRecipesInDebug}
+                    onChange={(event) =>
+                      settings.setShowUnsupportedRecipesInDebug(event.target.checked)
+                    }
+                  />
+                  {t("settings.showUnsupported")}
+                </label>
+
+                <div className="rounded-md border border-factory-border bg-factory-panel2 p-3">
+                  <div className="mb-2 text-xs font-semibold uppercase tracking-wide text-factory-brass">
+                    {t("settings.sourceDiagnostics")}
+                  </div>
+                  <dl className="grid grid-cols-1 gap-x-4 gap-y-1 text-xs sm:grid-cols-2">
+                    <DiagnosticRow label={t("settings.diagTotalSources")} value={registryStats.totalSources} />
+                    <DiagnosticRow label={t("settings.diagEnabledSources")} value={registryStats.enabledSources} />
+                    <DiagnosticRow label={t("settings.diagActiveRecipes")} value={registryStats.activeRecipeCount} />
+                    <DiagnosticRow label={t("settings.diagActiveTargetItems")} value={registryStats.activeTargetItemCount} />
+                    <DiagnosticRow
+                      label={t("settings.diagInvalidRecipeIds")}
+                      value={registryStats.invalidRecipeIds.length}
+                    />
+                    <DiagnosticRow
+                      label={t("settings.lastApplied")}
+                      value={
+                        settings.lastRecipeSourcesAppliedAt
+                          ? new Date(settings.lastRecipeSourcesAppliedAt).toLocaleString()
+                          : t("settings.never")
+                      }
+                    />
+                  </dl>
+                  <div className="mt-2 text-[11px] uppercase tracking-wide text-stone-500">
+                    {t("settings.diagRecipesPerSource")}
+                  </div>
+                  <ul className="industrial-scrollbar mt-1 max-h-40 overflow-auto text-xs text-stone-400">
+                    {Object.entries(registryStats.recipesPerSource).map(([sourceId, count]) => (
+                      <li key={sourceId} className="flex justify-between gap-3 border-b border-factory-border/50 py-0.5">
+                        <span className="truncate">{getSourceDisplayName(sourceId)}</span>
+                        <span className="shrink-0 text-stone-300">{count}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <button
+                  type="button"
+                  className="w-fit rounded-md border border-factory-border bg-factory-panel2 px-3 py-2 text-xs text-stone-200 hover:border-factory-brass"
+                  onClick={() => setActiveTab("debug")}
+                >
+                  {t("settings.openDeveloper")}
+                </button>
+              </>
+            ) : null}
           </div>
         </SettingsSection>
 

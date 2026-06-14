@@ -26,6 +26,13 @@ export type RecipeSourcePreference =
   | "addons"
   | "preferred_source";
 
+export type MaterialTheme =
+  | "automatic"
+  | "andesite"
+  | "brass"
+  | "copper"
+  | "train";
+
 export interface SettingsState {
   minecraftVersion: string;
   createVersion: string;
@@ -36,6 +43,7 @@ export interface SettingsState {
   preferredSuGeneratorId: string;
   theme: ThemeMode;
   language: Language;
+  materialTheme: MaterialTheme;
   defaultEfficiency: number;
   suMargin: number;
   showAdvancedCalculations: boolean;
@@ -45,6 +53,7 @@ export interface SettingsState {
   recipeSourcePreference: RecipeSourcePreference;
   pinnedRecipeId?: string;
   enabledRecipeSourceIds: string[];
+  lastRecipeSourcesAppliedAt?: number;
   machineStressOverrides: Record<string, number>;
   generatorCapacityOverrides: Record<string, number>;
   setMinecraftVersion: (value: string) => void;
@@ -56,6 +65,7 @@ export interface SettingsState {
   setPreferredSuGeneratorId: (value: string) => void;
   setTheme: (value: ThemeMode) => void;
   setLanguage: (value: Language) => void;
+  setMaterialTheme: (value: MaterialTheme) => void;
   setDefaultEfficiency: (value: number) => void;
   setSuMargin: (value: number) => void;
   setShowAdvancedCalculations: (value: boolean) => void;
@@ -68,6 +78,7 @@ export interface SettingsState {
   enableAllRecipeSources: () => void;
   disableAllAddonRecipeSources: () => void;
   resetRecipeSources: () => void;
+  setLastRecipeSourcesAppliedAt: (value: number) => void;
   setMachineStressOverride: (machineId: string, value: number) => void;
   setGeneratorCapacityOverride: (generatorId: string, value: number) => void;
   resetSettings: () => void;
@@ -83,6 +94,7 @@ const initialSettings = {
   preferredSuGeneratorId: "create:large_water_wheel",
   theme: "dark" as const,
   language: "en" as const,
+  materialTheme: "automatic" as const,
   defaultEfficiency: DEFAULT_REALISTIC_EFFICIENCY,
   suMargin: DEFAULT_SU_MARGIN,
   showAdvancedCalculations: false,
@@ -92,6 +104,7 @@ const initialSettings = {
   recipeSourcePreference: "enabled_sources" as const,
   pinnedRecipeId: undefined,
   enabledRecipeSourceIds: defaultEnabledRecipeSourceIds(),
+  lastRecipeSourcesAppliedAt: undefined,
   machineStressOverrides: {},
   generatorCapacityOverrides: {}
 };
@@ -117,6 +130,7 @@ export const useSettingsStore = create<SettingsState>()(
         })),
       setTheme: (theme) => set({ theme }),
       setLanguage: (language) => set({ language }),
+      setMaterialTheme: (materialTheme) => set({ materialTheme }),
       setDefaultEfficiency: (defaultEfficiency) => set({ defaultEfficiency }),
       setSuMargin: (suMargin) => set({ suMargin }),
       setShowAdvancedCalculations: (showAdvancedCalculations) =>
@@ -167,6 +181,8 @@ export const useSettingsStore = create<SettingsState>()(
         set({ enabledRecipeSourceIds: [CREATE_BASE_SOURCE_ID] }),
       resetRecipeSources: () =>
         set({ enabledRecipeSourceIds: defaultEnabledRecipeSourceIds() }),
+      setLastRecipeSourcesAppliedAt: (lastRecipeSourcesAppliedAt) =>
+        set({ lastRecipeSourcesAppliedAt }),
       setMachineStressOverride: (machineId, value) =>
         set((state) => ({
           machineStressOverrides: {
@@ -213,6 +229,7 @@ export const useSettingsStore = create<SettingsState>()(
         preferredSuGeneratorId: state.preferredSuGeneratorId,
         theme: state.theme,
         language: state.language,
+        materialTheme: state.materialTheme,
         defaultEfficiency: state.defaultEfficiency,
         suMargin: state.suMargin,
         showAdvancedCalculations: state.showAdvancedCalculations,
@@ -224,6 +241,7 @@ export const useSettingsStore = create<SettingsState>()(
         enabledRecipeSourceIds: normalizeEnabledRecipeSourceIds(
           state.enabledRecipeSourceIds
         ),
+        lastRecipeSourcesAppliedAt: state.lastRecipeSourcesAppliedAt,
         machineStressOverrides: state.machineStressOverrides,
         generatorCapacityOverrides: state.generatorCapacityOverrides
       })
